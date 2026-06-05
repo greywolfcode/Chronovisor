@@ -7,7 +7,7 @@ import 'package:path/path.dart' as p;
 
 import 'package:archive/archive.dart';
 
-final chatPath = p.join('Takeout', 'Google Chat');
+final chatPath = 'Takeout/Google Chat';
 
 ChatArchive loadExport(String path)
 {
