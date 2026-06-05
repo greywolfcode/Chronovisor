@@ -1,6 +1,8 @@
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:archive/archive_io.dart';
 import 'package:path/path.dart' as p;
 
 import 'package:archive/archive.dart';
@@ -31,11 +33,66 @@ ChatArchive loadExport(String path)
   List<MessageGroup> dms = [];
   List<MessageGroup> spaces = [];
 
-  HashMap<String, List<ArchiveFile>> messageGroups;
+  //store each set of spaces/dms based on their path
+  HashMap<String, List<ArchiveFile>> messageGroups = HashMap<String, List<ArchiveFile>>();
 
   for (final entry in chatFolder)
   {
-    
+
+    var file = entry.name.split('/');
+    var fileName = file.removeAt(file.length - 1);
+    var filePath = file.join('');
+
+    if (fileName == 'user_info.json')
+    {
+      user = utf8.decoder.convert(entry.content);
+      continue;
+    }
+
+    //add new dm/space to map
+    if (!messageGroups.containsKey(filePath))
+    {
+      messageGroups[filePath] = [];
+    }
+
+    messageGroups[filePath]!.add(entry);
+  }  
+
+  for (final key in messageGroups.keys)
+  {
+    if (messageGroups[key] == null)
+    {
+      continue;
+    }
+
+    String messages = '';
+    String groupInfo = '';
+    List<ArchiveFile> files = [];
+
+    for (final file in messageGroups[key]!)
+    {
+      if (file.name.contains('group_info.json'))
+      {
+        groupInfo = utf8.decoder.convert(file.content);
+      }
+      else if (file.name.contains('messages.json'))
+      {
+        messages = utf8.decoder.convert(file.content);
+      }
+      else
+      {
+        files.add(file);
+      }
+    }
+
+    if (key.contains('DM'))
+    {
+      dms.add(MessageGroup(groupInfo, messages, files));
+    }
+    else if (key.contains('Space'))
+    {
+      spaces.add(MessageGroup(groupInfo, messages, files));
+    }
   }
 
   return ChatArchive(user, dms, spaces);
@@ -53,9 +110,9 @@ class ChatArchive
 
 class MessageGroup 
 {
-  const MessageGroup(this.group_info, this.messages, this.files);
+  const MessageGroup(this.groupInfo, this.messages, this.files);
 
-  final String group_info;
+  final String groupInfo;
   final String messages;
   final List<ArchiveFile> files;
 }
