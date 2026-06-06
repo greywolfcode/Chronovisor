@@ -12,6 +12,7 @@ dependencies:
     path: ../archive_handeler
   flutter:
     sdk: flutter
+  resizable_widget: ^1.0.5
 
 dev_dependencies:
   flutter_test:
