@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:file_picker/file_picker.dart';
+
 void main() {
   runApp(const MainApp());
 }
@@ -12,9 +14,25 @@ class MainApp extends StatelessWidget {
     return const MaterialApp(
       home: Scaffold(
         body: Center(
-          child: Text('Hello World!'),
+          child: ElevatedButton(
+            onPressed: openArchive,
+            child: Text('open archive'),
+          )
         ),
       ),
     );
   }
+}
+
+Future<void> openArchive() async
+{
+  FilePicker.pickFiles();
+  FilePickerResult? result = await FilePicker.pickFiles(type: FileType.custom, allowedExtensions: ['.zip']);
+
+  if (result == null)
+  {
+    return;
+  }
+
+  
 }
