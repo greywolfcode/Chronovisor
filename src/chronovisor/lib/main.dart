@@ -58,8 +58,7 @@ class Model
 {
   Future<void> openArchive() async
   {
-    FilePicker.pickFiles();
-    FilePickerResult? result = await FilePicker.pickFiles(allowedExtensions: ['.zip']);
+    FilePickerResult? result = await FilePicker.pickFiles(type: FileType.custom, allowedExtensions: ['zip']);
 
     if (result == null)
     {
