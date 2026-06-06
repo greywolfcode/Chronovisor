@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:file_picker/file_picker.dart';
 
+import 'package:archive_handeler/main.dart';
+
 void main() {
   runApp(const MainApp());
 }
@@ -27,10 +29,24 @@ class MainApp extends StatelessWidget {
 Future<void> openArchive() async
 {
   FilePicker.pickFiles();
-  FilePickerResult? result = await FilePicker.pickFiles(type: FileType.custom, allowedExtensions: ['.zip']);
+  FilePickerResult? result = await FilePicker.pickFiles(allowedExtensions: ['.zip']);
 
   if (result == null)
   {
     return;
+  }
+
+  List<String?> paths = result.paths;
+
+  for (final path in paths)
+  {
+    if (path == null)
+    {
+      continue;
+    }
+
+    ChatArchive archives = loadExport(path);
+
+    
   }
 } 

@@ -106,6 +106,12 @@ class ChatArchive
   final String user;
   final List<MessageGroup> dms;
   final List<MessageGroup> spaces;
+
+  @override
+  String toString()
+  {
+    return 'DMs: ${dms.length}  Spaces: ${spaces.length} User: $user';
+  }
 }
 
 class MessageGroup 
