@@ -73,20 +73,23 @@ class Model
     await compute(load, paths);
 
   }
-  void load(List<String?> paths)
-  {
-    for (final path in paths)
-    {
-      if (path == null)
-      {
-        continue;
-      }
-
-      loadExport(path);
-    }
-
-  } 
+  
 }
+
+void load(List<String?> paths)
+{
+  print('run load');
+
+  for (final path in paths)
+  {
+    if (path == null)
+    {
+      continue;
+    }
+    loadExport(path);
+  }
+
+} 
 
 class ViewModel extends ChangeNotifier
 {
