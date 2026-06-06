@@ -12,12 +12,15 @@ class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) 
+  {
+    final viewModel = ViewModel(Model());
+
     return const MaterialApp(
       home: Scaffold(
         body: Center(
           child: ElevatedButton(
-            onPressed: openArchive,
+            onPressed: viewModel.openArchive,
             child: Text('open archive'),
           )
         ),
@@ -26,27 +29,30 @@ class MainApp extends StatelessWidget {
   }
 }
 
-Future<void> openArchive() async
+class Model
 {
-  FilePicker.pickFiles();
-  FilePickerResult? result = await FilePicker.pickFiles(allowedExtensions: ['.zip']);
-
-  if (result == null)
+  Future<void> openArchive() async
   {
-    return;
-  }
+    FilePicker.pickFiles();
+    FilePickerResult? result = await FilePicker.pickFiles(allowedExtensions: ['.zip']);
 
-  List<String?> paths = result.paths;
-
-  for (final path in paths)
-  {
-    if (path == null)
+    if (result == null)
     {
-      continue;
+      return;
     }
 
-    ChatArchive archives = loadExport(path);
+    List<String?> paths = result.paths;
 
-    
-  }
-} 
+    for (final path in paths)
+    {
+      if (path == null)
+      {
+        continue;
+      }
+
+      ChatArchive archives = loadExport(path);
+
+      
+    }
+  } 
+}
