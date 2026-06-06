@@ -27,3 +27,8 @@ flutter:
         - asset: 'resources/Google Sans/GoogleSans-VariableFont_GRAD,opsz,wght.ttf'
         - asset: 'resources/Google Sans/GoogleSans-Italic-VariableFont_GRAD,opsz,wght.ttf'
           style: italic
+    - family: Roboto
+      fonts: 
+        - asset: 'resources/Roboto/Roboto-VariableFont_wdth,wght.ttf'
+        - asset: 'resources/Roboto/Roboto-Italic-VariableFont_wdth,wght.ttf'
+          style: italic
