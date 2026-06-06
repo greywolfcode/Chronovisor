@@ -56,3 +56,16 @@ class Model
     }
   } 
 }
+
+class ViewModel extends ChangeNotifier
+{
+  final Model model;
+
+  ViewModel(this.model);
+
+  Future<void> openArchive() async
+  {
+    model.openArchive();
+  }
+}
+
