@@ -8,6 +8,8 @@ environment:
 
 dependencies:
   file_picker: ^11.0.2
+  archive_handeler:
+    path: ../archive_handeler
   flutter:
     sdk: flutter
 
