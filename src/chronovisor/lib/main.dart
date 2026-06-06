@@ -15,7 +15,10 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) 
   {
-    return const MaterialApp(home: View());
+    return MaterialApp(
+      home: View(),
+      theme: ThemeData(fontFamily: 'Google Sans'),
+    );
   }
 }
 
