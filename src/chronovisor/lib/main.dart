@@ -14,17 +14,33 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) 
   {
-    final viewModel = ViewModel(Model());
+    return const MaterialApp(home: View());
+  }
+}
 
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: ElevatedButton(
-            onPressed: viewModel.openArchive,
-            child: Text('open archive'),
-          )
-        ),
-      ),
+class View extends StatefulWidget
+{
+  const View({super.key});
+
+  @override
+  State<View> createState() => _ViewState();
+}
+
+class _ViewState extends State<View>
+{
+  final ViewModel viewModel= ViewModel(Model());
+
+  @override
+  void initState()
+  {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context)
+  {
+    return Scaffold(
+      
     );
   }
 }
