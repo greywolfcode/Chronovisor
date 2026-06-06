@@ -20,3 +20,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  fonts:
+    - family: Google Sans
+      fonts: 
+        - asset: 'resources/Google Sans/GoogleSans-VariableFont_GRAD,opsz,wght.ttf'
+        - asset: 'resources/Google Sans/GoogleSans-Italic-VariableFont_GRAD,opsz,wght.ttf'
+          style: italic
