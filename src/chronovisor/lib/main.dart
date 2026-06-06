@@ -5,6 +5,8 @@ import 'package:file_picker/file_picker.dart';
 
 import 'package:archive_handeler/main.dart';
 
+import 'themes.dart';
+
 void main() {
   runApp(const MainApp());
 }
@@ -43,17 +45,7 @@ class _ViewState extends State<View>
   @override
   Widget build(BuildContext context)
   {
-    return Scaffold(
-      body: ListenableBuilder(
-        listenable: viewModel, 
-        builder: ((context, child) {
-          return ElevatedButton(
-            onPressed: viewModel.openArchive,
-            child: const Text('Load archive'),
-          );
-        }),
-      ),
-    );
+    return ChatTheme(uploadArchive: viewModel.openArchive);
   }
 }
 
@@ -97,8 +89,8 @@ class ViewModel extends ChangeNotifier
 
   ViewModel(this.model);
 
-  Future<void> openArchive() async
+  void openArchive()
   {
-    await model.openArchive();
+    model.openArchive();
   }
 }
