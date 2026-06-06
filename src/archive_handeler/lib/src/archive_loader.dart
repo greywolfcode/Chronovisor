@@ -18,12 +18,11 @@ ChatArchive loadExport(String path)
   for (final entry in archive)
   {
     //only want folders
-    if (entry.isDirectory)
+    if (entry.isFile)
     {
       if (entry.name.contains(chatPath))
       {
         chatFolder.add(entry);
-        break;
       }
     }    
   }
