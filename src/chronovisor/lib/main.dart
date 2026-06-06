@@ -40,7 +40,15 @@ class _ViewState extends State<View>
   Widget build(BuildContext context)
   {
     return Scaffold(
-      
+      body: ListenableBuilder(
+        listenable: viewModel, 
+        builder: ((context, child) {
+          return ElevatedButton(
+            onPressed: viewModel.openArchive,
+            child: const Text('Load archive'),
+          );
+        }),
+      ),
     );
   }
 }
@@ -81,7 +89,6 @@ class ViewModel extends ChangeNotifier
 
   Future<void> openArchive() async
   {
-    model.openArchive();
+    await model.openArchive();
   }
 }
-
