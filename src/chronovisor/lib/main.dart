@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:file_picker/file_picker.dart';
@@ -67,6 +68,11 @@ class Model
 
     List<String?> paths = result.paths;
 
+    await compute(load, paths);
+
+  }
+  void load(List<String?> paths)
+  {
     for (final path in paths)
     {
       if (path == null)
@@ -74,10 +80,9 @@ class Model
         continue;
       }
 
-      ChatArchive archives = loadExport(path);
-
-      
+      loadExport(path);
     }
+
   } 
 }
 
