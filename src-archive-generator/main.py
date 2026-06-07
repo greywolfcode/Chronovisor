@@ -1,9 +1,9 @@
 from enum import Enum
 
 from textual.app import App, ComposeResult
-from textual.containers import CenterMiddle, Container
+from textual.containers import CenterMiddle, Container, Horizontal
 from textual.screen import Screen
-from textual.widgets import Button, Header
+from textual.widgets import Button, ContentSwitcher, Header, Input
 
 class State(Enum):
     MAIN_MENU = 0,
@@ -48,13 +48,30 @@ class CreateUserMenu(Screen):
         self.state = self.CreateState.NAME
         self.side_bar = self.SideBar(self)
 
+        self._name = "Temp Temp"
+        self._email = "Temp@temp.temp"
     
     def compose(self) -> ComposeResult:
         yield Header(name = "Chronovisor Archive Generator")
+
         yield self.side_bar
+
+        with ContentSwitcher(initial="name"):
+            yield Input(placeholder=self._name, id="name")
+            yield Input(placeholder=self._email, id="email")
     
+    def on_input_changed(self, event: Input.Changed):
+        if (event.input.id == "name"):
+            self._name = event.input.value
+        else:
+            self._email = event.input.value
+
     def set_state(self, new_state: CreateState):
         self.state = new_state
+        if (self.state == self.CreateState.NAME):
+            self.query_one(ContentSwitcher).current = "name"
+        else:
+            self.query_one(ContentSwitcher).current = "email"
 
 class ArchiveGeneratorApp(App):
 
