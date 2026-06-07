@@ -12,7 +12,7 @@ class State(Enum):
 class MainMenu(Screen):
     def compose(self) -> ComposeResult:
         yield Header(name = "Chronovisor Archive Generator")
-        yield Button(label = "New Archive", id = "new_archive")
+        yield CenterMiddle(Button(label = "New Archive", id = "new_archive"))
     
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "new_archive":
@@ -22,20 +22,39 @@ class MainMenu(Screen):
 
 class CreateUserMenu(Screen):
 
+    class CreateState(Enum):
+        NAME = 0,
+        EMAIL = 1,
+
     class SideBar(Container):
+        def __init__(self, bar_parent: Screen):
+            super().__init__()
+            self._parent = bar_parent
+
         def compose(self) -> ComposeResult:
             yield Button(label = "Set Name", id = "name")
             yield Button(label = "Set Email", id = "email")
             yield Button(label = "Create", id = "create")
+        
+        def on_button_pressed(self, event: Button.Pressed) -> None:
+            if event.button.id == "name":
+                self._parent.set_state(self._parent.CreateState.NAME)
+            elif event.button.id == "email":
+                self._parent.set_state(self._parent.CreateState.EMAIL)
+
     
     def __init__(self):
         super().__init__()
-        self.side_bar = self.SideBar()
+        self.state = self.CreateState.NAME
+        self.side_bar = self.SideBar(self)
 
     
     def compose(self) -> ComposeResult:
         yield Header(name = "Chronovisor Archive Generator")
         yield self.side_bar
+    
+    def set_state(self, new_state: CreateState):
+        self.state = new_state
 
 class ArchiveGeneratorApp(App):
 
