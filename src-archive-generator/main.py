@@ -5,6 +5,13 @@ from textual.containers import CenterMiddle, Container, Horizontal, Vertical
 from textual.screen import Screen
 from textual.widgets import Button, ContentSwitcher, Header, Input, Label
 
+from scripts.id_handeler import IdType
+
+data = {
+    "spaces": {},
+    "groups": {}
+}
+
 class State(Enum):
     MAIN_MENU = 0,
     CREATE_USER = 1,
@@ -99,6 +106,16 @@ class HubMenu(Screen):
         yield Button(label = "New Space", id = "new_space")
         yield Button(label = "New DM", id = "new_dm")
         yield Button(label = "Export", id = "export")
+
+class DMCreationMenu(Screen):
+    def __init__(self):
+        super().__init__()
+        self.uuid = IdType.gen_id(IdType.DM)
+
+class SpaceCreationMenu(Screen):
+    def __init__(self):
+        super().__init__()
+        self.uuid = IdType.gen_id(IdType.Space)
 
 class ArchiveGeneratorApp(App):
 
