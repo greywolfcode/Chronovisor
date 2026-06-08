@@ -7,6 +7,8 @@ from textual.widgets import Button, ContentSwitcher, Header, Input, Label
 
 from scripts.id_handeler import IdType
 
+from scripts.archive_handeling import Archive, Message
+
 data = {
     "spaces": {},
     "groups": {}
@@ -16,6 +18,7 @@ class State(Enum):
     MAIN_MENU = 0,
     CREATE_USER = 1,
     HUB = 2,
+    CREATE_DM = 3,
 
 class MainMenu(Screen):
     def compose(self) -> ComposeResult:
@@ -106,11 +109,33 @@ class HubMenu(Screen):
         yield Button(label = "New Space", id = "new_space")
         yield Button(label = "New DM", id = "new_dm")
         yield Button(label = "Export", id = "export")
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "new_dm":
+            app.set_state(State.CREATE_DM)
+            app.install_screen(DMCreationMenu(), name = "DM Creation Menu")
+            app.switch_screen("DM Creation Menu")
 
 class DMCreationMenu(Screen):
+
+    CSS_PATH = "styles/create_message_group_menus.tcss"
+
+    class SideBar(Vertical):
+        def compose(self) -> ComposeResult:
+            yield Button(label = "Edit People", id = "edit_people")
+            yield Button(label = "Add Message", id = "add_message")
+            yield Button(label = "Finish", id = "finish")
+
     def __init__(self):
         super().__init__()
         self.uuid = IdType.gen_id(IdType.DM)
+        self.sidebar = self.SideBar()
+
+        data["spaces"][self.uuid] = Archive(self.uuid)
+    
+    def compose(self) -> ComposeResult:
+        yield Header(name = "Chronovisor Archive Generator")
+
+        yield self.sidebar 
 
 class SpaceCreationMenu(Screen):
     def __init__(self):
