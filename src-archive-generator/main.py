@@ -152,7 +152,9 @@ class SpaceCreationMenu(Screen):
 
 class LicenceScreen(ModalScreen):
 
-    CSS_PATH = "styles\licence_screen.tcss"
+    BINDINGS = [("l", "close", "Close Licence")]        
+
+    CSS_PATH = "styles/licence_screen.tcss"
 
     LICENCE_TEXT = """
     Chronovisor archive generator tool.
@@ -173,12 +175,21 @@ class LicenceScreen(ModalScreen):
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA."""
 
     def compose(self) -> ComposeResult:
-        yield Label(self.LICENCE_TEXT)
-        yield Button(label = "Done", id = "done")
-    
+        yield CenterMiddle(
+            Label(self.LICENCE_TEXT, id="text"),
+            Button(label = "Done", id = "done"),
+            id = "popup"
+        )
+            
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "done":
-            app.pop_screen()
+            self.close()
+
+    def action_close(self):
+        self.close()
+    
+    def close(self):
+        app.pop_screen()
 
 class ArchiveGeneratorApp(App):
 
