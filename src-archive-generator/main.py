@@ -8,6 +8,7 @@ from textual.widgets import Button, ContentSwitcher, Header, Input, Label
 class State(Enum):
     MAIN_MENU = 0,
     CREATE_USER = 1,
+    HUB = 2,
 
 class MainMenu(Screen):
     def compose(self) -> ComposeResult:
@@ -46,6 +47,10 @@ class CreateUserMenu(Horizontal, Screen):
                 self._parent.set_state(self._parent.CreateState.NAME)
             elif event.button.id == "email":
                 self._parent.set_state(self._parent.CreateState.EMAIL)
+            elif event.button.id == "create":
+                app.set_state(State.HUB)
+                app.install_screen(HubMenu(), name = "Hub Menu")
+                app.switch_screen("Hub Menu")
 
     
     def __init__(self):
@@ -83,6 +88,17 @@ class CreateUserMenu(Horizontal, Screen):
         else:
             self.query_one("#label_switcher", ContentSwitcher).current = "email"
             self.query_one("#input_switcher", ContentSwitcher).current = "email"
+
+class HubMenu(Screen):
+
+    CSS_PATH = "styles/hub_menu.tcss"
+
+    def compose(self) -> ComposeResult:
+        yield Header(name = "Chronovisor Archive Generator")
+
+        yield Button(label = "New Space", id = "new_space")
+        yield Button(label = "New DM", id = "new_dm")
+        yield Button(label = "Export", id = "export")
 
 class ArchiveGeneratorApp(App):
 
