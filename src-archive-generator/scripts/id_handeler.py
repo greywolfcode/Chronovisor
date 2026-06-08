@@ -7,7 +7,7 @@ class IdType(Enum):
     DM = 1
 
     @staticmethod
-    def gen_id(type: IdType) -> str:
+    def gen_id(type) -> str:
         """
         Generates a unique filesystem/url safe id for spaces/dms
         """
