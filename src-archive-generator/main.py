@@ -3,7 +3,7 @@ from enum import Enum
 from textual.app import App, ComposeResult
 from textual.containers import CenterMiddle, Container, Horizontal, Vertical
 from textual.screen import Screen
-from textual.widgets import Button, ContentSwitcher, Header, Input, Label
+from textual.widgets import Button, ContentSwitcher, Footer, Header, Input, Label
 
 from scripts.id_handeler import IdType
 
@@ -24,6 +24,7 @@ class MainMenu(Screen):
     def compose(self) -> ComposeResult:
         yield Header(name = "Chronovisor Archive Generator")
         yield CenterMiddle(Button(label = "New Archive", id = "new_archive"))
+        yield Footer()    
     
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "new_archive":
@@ -83,7 +84,9 @@ class CreateUserMenu(Horizontal, Screen):
         with ContentSwitcher(initial="name", id="input_switcher"):
             yield Input(placeholder=self._name, id="name")
             yield Input(placeholder=self._email, id="email")
-    
+        
+        yield Footer()
+
     def on_input_changed(self, event: Input.Changed):
         if (event.input.id == "name"):
             self._name = event.input.value
@@ -109,6 +112,9 @@ class HubMenu(Screen):
         yield Button(label = "New Space", id = "new_space")
         yield Button(label = "New DM", id = "new_dm")
         yield Button(label = "Export", id = "export")
+
+        yield Footer()
+
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "new_dm":
             app.set_state(State.CREATE_DM)
@@ -136,6 +142,8 @@ class DMCreationMenu(Screen):
         yield Header(name = "Chronovisor Archive Generator")
 
         yield self.sidebar 
+
+        yield Footer()
 
 class SpaceCreationMenu(Screen):
     def __init__(self):
