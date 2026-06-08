@@ -2,7 +2,7 @@ from enum import Enum
 
 from textual.app import App, ComposeResult
 from textual.containers import CenterMiddle, Container, Horizontal, Vertical
-from textual.screen import Screen
+from textual.screen import ModalScreen, Screen
 from textual.widgets import Button, ContentSwitcher, Footer, Header, Input, Label
 
 from scripts.id_handeler import IdType
@@ -150,19 +150,52 @@ class SpaceCreationMenu(Screen):
         super().__init__()
         self.uuid = IdType.gen_id(IdType.Space)
 
+class LicenceScreen(ModalScreen):
+
+    CSS_PATH = "styles\licence_screen.tcss"
+
+    LICENCE_TEXT = """
+    Chronovisor archive generator tool.
+    Copyright (C) 2026  greywolfcode
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published byl
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA."""
+
+    def compose(self) -> ComposeResult:
+        yield Label(self.LICENCE_TEXT)
+        yield Button(label = "Done", id = "done")
+    
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "done":
+            app.pop_screen()
+
 class ArchiveGeneratorApp(App):
 
     def __init__(self):
         super().__init__()
         self.state = State.MAIN_MENU
 
-    BINDINGS = [("d", "toggle_dark", "Toggle dark mode")]        
+    BINDINGS = [("d", "toggle_dark", "Toggle dark mode"), ("l", "show_licence", "Show Licence")]        
 
     def action_toggle_dark(self) -> None:
         """An action to toggle dark mode."""
         self.theme = (
             "textual-dark" if self.theme == "textual-light" else "textual-light"
         )
+    
+    def action_show_licence(self):
+        self.push_screen(LicenceScreen())
     
     def set_state(self, new_state: State) -> None:
         self.state = new_state
