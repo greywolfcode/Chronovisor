@@ -17,10 +17,12 @@
 
 from enum import Enum
 
+from rich.text import Text
+
 from textual.app import App, ComposeResult
-from textual.containers import CenterMiddle, Container, Horizontal, Vertical
+from textual.containers import CenterMiddle, Container, Horizontal, Vertical, VerticalScroll
 from textual.screen import ModalScreen, Screen
-from textual.widgets import Button, ContentSwitcher, Footer, Header, Input, Label
+from textual.widgets import Button, ContentSwitcher, DataTable, Footer, Header, Input, Label
 
 from scripts.id_handeler import IdType
 
@@ -31,11 +33,14 @@ data = {
     "groups": {}
 }
 
+current_uuid = None
+
 class State(Enum):
     MAIN_MENU = 0,
     CREATE_USER = 1,
     HUB = 2,
     CREATE_DM = 3,
+    EDIT_PEOPLE = 4,
 
 class MainMenu(Screen):
     def compose(self) -> ComposeResult:
@@ -76,7 +81,7 @@ class CreateUserMenu(Horizontal, Screen):
             elif event.button.id == "email":
                 self._parent.set_state(self._parent.CreateState.EMAIL)
             elif event.button.id == "create":
-                data["user"] = Person(self.name, self.email)
+                self._parent.create_user()
 
                 app.set_state(State.HUB)
                 app.install_screen(HubMenu(), name = "Hub Menu")
@@ -120,6 +125,9 @@ class CreateUserMenu(Horizontal, Screen):
         else:
             self.query_one("#label_switcher", ContentSwitcher).current = "email"
             self.query_one("#input_switcher", ContentSwitcher).current = "email"
+    
+    def create_user(self):
+        data["user"] = Person(self._name, self._email)
 
 class HubMenu(Screen):
 
@@ -151,11 +159,16 @@ class DMCreationMenu(Screen):
             yield Button(label = "Finish", id = "finish")
 
     def __init__(self):
+        global current_uuid
+
         super().__init__()
         self.uuid = IdType.gen_id(IdType.DM)
         self.sidebar = self.SideBar()
+        self.editor = Container()
 
-        data["spaces"][self.uuid] = Archive(self.uuid)
+        current_uuid = self.uuid
+        data["spaces"][current_uuid] = Archive(self.uuid)
+        data["spaces"][current_uuid].add_person(data["user"])
     
     def compose(self) -> ComposeResult:
         yield Header(name = "Chronovisor Archive Generator")
@@ -163,11 +176,37 @@ class DMCreationMenu(Screen):
         yield self.sidebar 
 
         yield Footer()
+    
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "edit_people":
+            self.editor = PersonEditingMenu(2) # can't add more prople to DM
+            self.mount(self.editor)
 
 class SpaceCreationMenu(Screen):
     def __init__(self):
         super().__init__()
         self.uuid = IdType.gen_id(IdType.Space)
+
+class PersonEditingMenu(VerticalScroll):
+    def __init__(self, max_people: int):
+        super().__init__()
+        self.max_people = max_people
+
+    def compose(self) -> ComposeResult:
+        
+        yield DataTable()
+    
+    def on_mount(self) -> None:
+        rows = [("name", "email")]
+        for person in data["spaces"][current_uuid].people:
+            rows.append((person.name, person.email))
+
+        table = self.query_one(DataTable)
+        table.add_columns(*rows[0])
+        for number, row in enumerate(rows[1:], start=1):
+            label = Text(str(number))
+            table.add_row(*row, label=label)
+            
 
 class LicenceScreen(ModalScreen):
 
