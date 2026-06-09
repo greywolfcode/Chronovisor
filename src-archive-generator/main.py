@@ -24,7 +24,7 @@ from textual.widgets import Button, ContentSwitcher, Footer, Header, Input, Labe
 
 from scripts.id_handeler import IdType
 
-from scripts.archive_handeling import Archive, Message
+from scripts.archive_handeling import Archive, Message, Person
 
 data = {
     "spaces": {},
@@ -76,6 +76,8 @@ class CreateUserMenu(Horizontal, Screen):
             elif event.button.id == "email":
                 self._parent.set_state(self._parent.CreateState.EMAIL)
             elif event.button.id == "create":
+                data["user"] = Person(self.name, self.email)
+
                 app.set_state(State.HUB)
                 app.install_screen(HubMenu(), name = "Hub Menu")
                 app.switch_screen("Hub Menu")

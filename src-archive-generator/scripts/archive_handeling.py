@@ -23,5 +23,13 @@ class Archive():
     def __init__(self, uuid: str):
         self.uuid = uuid
         self.messages = []
+        self.people = []
     def add_message(self, message: Message):
         self.messages.append(Message)
+    def add_person(self, person: Person):
+        self.people.append(person)
+
+class Person():
+    def __init__(self, name: str, email: str):
+        self.name = name
+        self.email = email
