@@ -15,6 +15,11 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+class Person():
+    def __init__(self, name: str, email: str):
+        self.name = name
+        self.email = email
+
 class Message():
     def __init__(self, message: str):
         self.message = message
@@ -28,8 +33,3 @@ class Archive():
         self.messages.append(Message)
     def add_person(self, person: Person):
         self.people.append(person)
-
-class Person():
-    def __init__(self, name: str, email: str):
-        self.name = name
-        self.email = email
