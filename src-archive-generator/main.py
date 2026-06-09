@@ -191,10 +191,17 @@ class PersonEditingMenu(VerticalScroll):
     def __init__(self, max_people: int):
         super().__init__()
         self.max_people = max_people
+        self.current_row = None
 
     def compose(self) -> ComposeResult:
         
         yield DataTable()
+
+        yield Horizontal(
+            Button("Add person", id = "add_person"),
+            Button("Edit Person", id = "edit_person"),
+            Button("Remove Person", id = "remove_person")
+        )
     
     def on_mount(self) -> None:
         rows = [("name", "email")]
@@ -203,10 +210,35 @@ class PersonEditingMenu(VerticalScroll):
 
         table = self.query_one(DataTable)
         table.add_columns(*rows[0])
+        table.cursor_type = "row"
         for number, row in enumerate(rows[1:], start=1):
             label = Text(str(number))
             table.add_row(*row, label=label)
-            
+        
+        self.disable_buttons()
+    
+    def on_data_table_row_highlighted(self, event: DataTable.RowHighlighted) -> None:
+        self.current_row = event.cursor_row
+        
+        self.disable_buttons()
+
+    def disable_buttons(self) -> None:
+        rows = data["spaces"][current_uuid].people
+
+        if len(rows) >= self.max_people:
+            self.query_one("#add_person").disabled = True
+        else:
+            self.query_one("#add_person").disabled = False
+
+        if len(rows) <= 1:
+            self.query_one("#remove_person").disabled = True
+        else:
+            self.query_one("#remove_person").disabled = False
+
+        if self.current_row != None and self.current_row != 0:
+            self.query_one("#edit_person").disabled = False
+        else:
+            self.query_one("#edit_person").disabled = True
 
 class LicenceScreen(ModalScreen):
 
