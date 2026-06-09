@@ -226,6 +226,8 @@ class PersonEditingMenu(VerticalScroll):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "add_person":
             app.push_screen(AddPersonScreen())
+        elif event.button.id == "remove_person":
+            app.push_screen(RemovePopup(self.current_row))
 
     def disable_buttons(self) -> None:
         rows = data["spaces"][current_uuid].people
@@ -235,7 +237,7 @@ class PersonEditingMenu(VerticalScroll):
         else:
             self.query_one("#add_person").disabled = False
 
-        if len(rows) > 1 or (self.current_row != None and self.current_row != 0):
+        if self.current_row != None and self.current_row != 0:
             self.query_one("#remove_person").disabled = False
         else:
             self.query_one("#remove_person").disabled = True
@@ -287,6 +289,32 @@ class AddPersonScreen(ModalScreen):
             self._name = event.input.value
         else:
             self._email = event.input.value
+
+class RemovePopup(ModalScreen):
+    CSS_PATH = "styles/popup.tcss"
+
+    def __init__(self, index: int):
+        super().__init__(id = "popup_base")
+        self.index = index
+        self._name = data["spaces"][current_uuid].people[self.index].name
+
+    def compose(self) -> ComposeResult:
+        yield CenterMiddle(
+            Label('Are you sure you want to remove "' + self._name + '"'),
+            Horizontal(
+                Button("No", id = "no"),
+                Button("Yes", id = "yes")
+            ),
+            id = "popup"
+        )
+    
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "no":
+            app.pop_screen()
+        elif event.button.id == "yes":
+            data["spaces"][current_uuid].people.pop(self.index)
+            app.pop_screen()
+            app.switch_screen("DM Creation Menu")
 
 class LicenceScreen(ModalScreen):
 
