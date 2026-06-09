@@ -228,6 +228,8 @@ class PersonEditingMenu(VerticalScroll):
             app.push_screen(AddPersonScreen())
         elif event.button.id == "remove_person":
             app.push_screen(RemovePopup(self.current_row))
+        elif event.button.id == "edit_person":
+            app.push_screen(EditPersonMenu(self.current_row))
 
     def disable_buttons(self) -> None:
         rows = data["spaces"][current_uuid].people
@@ -315,6 +317,50 @@ class RemovePopup(ModalScreen):
             data["spaces"][current_uuid].people.pop(self.index)
             app.pop_screen()
             app.switch_screen("DM Creation Menu")
+
+class EditPersonMenu(ModalScreen):
+
+    CSS_PATH = "styles/popup.tcss"
+
+    def __init__(self, index: int):
+        super().__init__(id = "popup_base")
+
+        self.index = index
+
+        self._name = data["spaces"][current_uuid].people[self.index].name
+        self._email = data["spaces"][current_uuid].people[self.index].email
+
+    def compose(self) -> ComposeResult:
+        yield CenterMiddle(
+            Horizontal(
+                Label("Name: "),
+                Input(placeholder=self._name, id = "name")
+            ),
+            Horizontal(
+                Label("Email: "),
+                Input(placeholder=self._email, id = "email")
+            ),
+            Horizontal(
+                Button("Cancel", id = "cancel"),
+                Button("Save", id = "save")
+            ),
+            id = "popup"
+        )
+    
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "cancel":
+            app.pop_screen()
+        elif event.button.id == "save":
+            data["spaces"][current_uuid].people[self.index].name = self._name 
+            data["spaces"][current_uuid].people[self.index].email = self._email 
+            app.pop_screen()
+            app.switch_screen("DM Creation Menu")
+    
+    def on_input_changed(self, event: Input.Changed):
+        if (event.input.id == "name"):
+            self._name = event.input.value
+        else:
+            self._email = event.input.value
 
 class LicenceScreen(ModalScreen):
 
