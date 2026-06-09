@@ -178,6 +178,7 @@ class DMCreationMenu(Screen):
         yield Footer()
     
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        self.editor.remove()
         if event.button.id == "edit_people":
             self.editor = PersonEditingMenu(2) # can't add more prople to DM
             self.mount(self.editor)
@@ -222,6 +223,10 @@ class PersonEditingMenu(VerticalScroll):
         
         self.disable_buttons()
 
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "add_person":
+            app.push_screen(AddPersonScreen())
+
     def disable_buttons(self) -> None:
         rows = data["spaces"][current_uuid].people
 
@@ -230,21 +235,67 @@ class PersonEditingMenu(VerticalScroll):
         else:
             self.query_one("#add_person").disabled = False
 
-        if len(rows) <= 1:
-            self.query_one("#remove_person").disabled = True
-        else:
+        if len(rows) > 1 or (self.current_row != None and self.current_row != 0):
             self.query_one("#remove_person").disabled = False
+        else:
+            self.query_one("#remove_person").disabled = True
 
         if self.current_row != None and self.current_row != 0:
             self.query_one("#edit_person").disabled = False
         else:
             self.query_one("#edit_person").disabled = True
 
+class AddPersonScreen(ModalScreen):
+
+    CSS_PATH = "styles/popup.tcss"
+
+    def __init__(self):
+        super().__init__(id = "popup_base")
+
+        num = str(len(data["spaces"][current_uuid].people))
+
+        self._name = "Temp Temp " + num
+        self._email = "Temp_" + num + "@temp.temp"
+
+    def compose(self) -> ComposeResult:
+        yield CenterMiddle(
+            Horizontal(
+                Label("Name: "),
+                Input(placeholder=self._name, id = "name")
+            ),
+            Horizontal(
+                Label("Email: "),
+                Input(placeholder=self._email, id = "email")
+            ),
+            Horizontal(
+                Button("Cancel", id = "cancel"),
+                Button("Save", id = "save")
+            ),
+            id = "popup"
+        )
+    
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "cancel":
+            app.pop_screen()
+        elif event.button.id == "save":
+            data["spaces"][current_uuid].add_person(Person(self._name, self._email))
+            app.pop_screen()
+            app.switch_screen("DM Creation Menu")
+    
+    def on_input_changed(self, event: Input.Changed):
+        if (event.input.id == "name"):
+            self._name = event.input.value
+        else:
+            self._email = event.input.value
+
 class LicenceScreen(ModalScreen):
+
+    def __init__(self):
+        super().__init__(id="popup_base") 
 
     BINDINGS = [("l", "close", "Close Licence")]        
 
-    CSS_PATH = "styles/licence_screen.tcss"
+    CSS_PATH = ["styles/popup.tcss", "styles/licence_screen.tcss"]
 
     LICENCE_TEXT = """
     Chronovisor archive generator tool.
