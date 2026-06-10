@@ -16,6 +16,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from datetime import datetime
+from datetime import timezone
 
 from scripts.id_handeler import IdType
 
@@ -27,7 +28,7 @@ class Person():
 class Message():
     def __init__(self, message: str):
         self.message = message
-        self.time = datetime.now()
+        self.time = datetime.now(timezone.utc)
 
 class Archive():
     def __init__(self, uuid: str, type: IdType):
@@ -36,7 +37,7 @@ class Archive():
         self.people = []
         self.type = type
         self.name = ""
-        self.start_time = datetime.now()
+        self.start_time = datetime.now(timezone.utc)
     def add_message(self, message: Message):
         self.messages.append(Message)
     def add_person(self, person: Person):
