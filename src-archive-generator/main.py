@@ -22,6 +22,7 @@ from rich.text import Text
 from textual.app import App, ComposeResult
 from textual.containers import CenterMiddle, Container, Horizontal, Vertical, VerticalScroll
 from textual.screen import ModalScreen, Screen
+from textual.validation import Number
 from textual.widgets import Button, ContentSwitcher, DataTable, Footer, Header, Input, Label
 
 from scripts.id_handeler import IdType
@@ -159,6 +160,7 @@ class DMCreationMenu(Screen):
 
     class SideBar(Vertical):
         def compose(self) -> ComposeResult:
+            yield Button(label = "Edit DM", id = "edit_dm")
             yield Button(label = "Edit People", id = "edit_people")
             yield Button(label = "Add Message", id = "add_message")
             yield Button(label = "Finish", id = "finish")
@@ -187,6 +189,9 @@ class DMCreationMenu(Screen):
         if event.button.id == "edit_people":
             self.editor = PersonEditingMenu(2, IdType.DM) # can't add more prople to DM
             self.mount(self.editor)
+        elif event.button.id == "edit_dm":
+            self.editor = DataEditingMenu(False) #max 400 people in personal spaces
+            self.mount(self.editor)
 
 class SpaceCreationMenu(Screen):
     
@@ -194,6 +199,7 @@ class SpaceCreationMenu(Screen):
 
     class SideBar(Vertical):
         def compose(self) -> ComposeResult:
+            yield Button(label = "Edit Space", id = "edit_space")
             yield Button(label = "Edit People", id = "edit_people")
             yield Button(label = "Add Message", id = "add_message")
             yield Button(label = "Finish", id = "finish")
@@ -221,6 +227,9 @@ class SpaceCreationMenu(Screen):
         self.editor.remove()
         if event.button.id == "edit_people":
             self.editor = PersonEditingMenu(400, IdType.SPACE) #max 400 people in personal spaces
+            self.mount(self.editor)
+        elif event.button.id == "edit_space":
+            self.editor = DataEditingMenu(True) #max 400 people in personal spaces
             self.mount(self.editor)
 
 class PersonEditingMenu(VerticalScroll):
@@ -433,6 +442,71 @@ class EditPersonMenu(ModalScreen):
             self._name = event.input.value
         else:
             self._email = event.input.value
+
+class DataEditingMenu(Container):
+    def __init__(self, edit_name: bool):
+        super().__init__()
+        self.edit_name = edit_name
+
+    def compose(self) -> ComposeResult:
+        yield Horizontal(
+            Label("Month:"),
+            Input(
+                placeholder="9",
+                validators=[
+                Number(minimum=1, maximum=12),  
+                ],
+            ),
+            Label("Day:"),
+            Input(
+                placeholder="4",
+                validators=[
+                Number(minimum=1, maximum=31),  
+                ],
+            ),
+            Label("Year:"),
+            Input(
+                placeholder="1998",
+                validators=[
+                Number(minimum=1998),  
+                ],
+            ),
+            Label("Hour"),
+            Input(
+                placeholder="0",
+                validators=[
+                Number(minimum=0, maximum=23),  
+                ],
+            ),
+            Label("Minute"),
+            Input(
+                placeholder="0",
+                validators=[
+                Number(minimum=0, maximum=59),  
+                ],
+            ),
+            Label("Second"),
+            Input(
+                placeholder="0",
+                validators=[
+                Number(minimum=0, maximum=59),  
+                ],
+            )
+        )
+        
+    def on_mount(self) -> None:
+        if self.edit_name:
+            self.mount(
+                Horizontal(
+                    Label("Name"),
+                    Input(
+                            placeholder="Temp",
+                            validators=[
+                            Number(minimum=1, maximum=12),  
+                            ],
+                        ),
+                )
+            )
 
 class LicenceScreen(ModalScreen):
 
