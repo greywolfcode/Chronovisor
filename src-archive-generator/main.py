@@ -172,7 +172,7 @@ class DMCreationMenu(Screen):
         self.editor = Container()
 
         current_uuid = self.uuid
-        data["dms"][current_uuid] = Archive(self.uuid)
+        data["dms"][current_uuid] = Archive(self.uuid, IdType.DM)
         data["dms"][current_uuid].add_person(data["user"])
     
     def compose(self) -> ComposeResult:
@@ -207,7 +207,7 @@ class SpaceCreationMenu(Screen):
         self.editor = Container()
 
         current_uuid = self.uuid
-        data["spaces"][current_uuid] = Archive(self.uuid)
+        data["spaces"][current_uuid] = Archive(self.uuid, IdType.SPACE)
         data["spaces"][current_uuid].add_person(data["user"])
     
     def compose(self) -> ComposeResult:
