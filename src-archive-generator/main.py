@@ -30,7 +30,7 @@ from scripts.archive_handeling import Archive, Message, Person
 
 data = {
     "spaces": {},
-    "groups": {}
+    "dms": {}
 }
 
 current_uuid = None
@@ -41,6 +41,7 @@ class State(Enum):
     HUB = 2,
     CREATE_DM = 3,
     EDIT_PEOPLE = 4,
+    CREATE_SPACE = 5
 
 class MainMenu(Screen):
     def compose(self) -> ComposeResult:
@@ -147,6 +148,10 @@ class HubMenu(Screen):
             app.set_state(State.CREATE_DM)
             app.install_screen(DMCreationMenu(), name = "DM Creation Menu")
             app.switch_screen("DM Creation Menu")
+        elif event.button.id == "new_space":
+            app.set_state(State.CREATE_SPACE)
+            app.install_screen(SpaceCreationMenu(), name = "Space Creation Menu")
+            app.switch_screen("Space Creation Menu")
 
 class DMCreationMenu(Screen):
 
@@ -167,6 +172,41 @@ class DMCreationMenu(Screen):
         self.editor = Container()
 
         current_uuid = self.uuid
+        data["dms"][current_uuid] = Archive(self.uuid)
+        data["dms"][current_uuid].add_person(data["user"])
+    
+    def compose(self) -> ComposeResult:
+        yield Header(name = "Chronovisor Archive Generator")
+
+        yield self.sidebar 
+
+        yield Footer()
+    
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        self.editor.remove()
+        if event.button.id == "edit_people":
+            self.editor = PersonEditingMenu(2, IdType.DM) # can't add more prople to DM
+            self.mount(self.editor)
+
+class SpaceCreationMenu(Screen):
+    
+    CSS_PATH = "styles/create_message_group_menus.tcss"
+
+    class SideBar(Vertical):
+        def compose(self) -> ComposeResult:
+            yield Button(label = "Edit People", id = "edit_people")
+            yield Button(label = "Add Message", id = "add_message")
+            yield Button(label = "Finish", id = "finish")
+
+    def __init__(self):
+        global current_uuid
+
+        super().__init__()
+        self.uuid = IdType.gen_id(IdType.SPACE)
+        self.sidebar = self.SideBar()
+        self.editor = Container()
+
+        current_uuid = self.uuid
         data["spaces"][current_uuid] = Archive(self.uuid)
         data["spaces"][current_uuid].add_person(data["user"])
     
@@ -180,19 +220,20 @@ class DMCreationMenu(Screen):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         self.editor.remove()
         if event.button.id == "edit_people":
-            self.editor = PersonEditingMenu(2) # can't add more prople to DM
+            self.editor = PersonEditingMenu(400, IdType.SPACE) #max 400 people in personal spaces
             self.mount(self.editor)
 
-class SpaceCreationMenu(Screen):
-    def __init__(self):
-        super().__init__()
-        self.uuid = IdType.gen_id(IdType.Space)
-
 class PersonEditingMenu(VerticalScroll):
-    def __init__(self, max_people: int):
+    def __init__(self, max_people: int, type: IdType):
         super().__init__()
         self.max_people = max_people
         self.current_row = None
+        self.type = type
+
+        if self.type == IdType.DM:
+            self.key = "dms"
+        else:
+            self.key = "spaces"
 
     def compose(self) -> ComposeResult:
         
@@ -206,7 +247,7 @@ class PersonEditingMenu(VerticalScroll):
     
     def on_mount(self) -> None:
         rows = [("name", "email")]
-        for person in data["spaces"][current_uuid].people:
+        for person in data[self.key][current_uuid].people:
             rows.append((person.name, person.email))
 
         table = self.query_one(DataTable)
@@ -225,14 +266,14 @@ class PersonEditingMenu(VerticalScroll):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "add_person":
-            app.push_screen(AddPersonScreen())
+            app.push_screen(AddPersonScreen(self.type))
         elif event.button.id == "remove_person":
-            app.push_screen(RemovePopup(self.current_row))
+            app.push_screen(RemovePopup(self.current_row, self.type))
         elif event.button.id == "edit_person":
-            app.push_screen(EditPersonMenu(self.current_row))
+            app.push_screen(EditPersonMenu(self.current_row, self.type))
 
     def disable_buttons(self) -> None:
-        rows = data["spaces"][current_uuid].people
+        rows = data[self.key][current_uuid].people
 
         if len(rows) >= self.max_people:
             self.query_one("#add_person").disabled = True
@@ -253,10 +294,17 @@ class AddPersonScreen(ModalScreen):
 
     CSS_PATH = "styles/popup.tcss"
 
-    def __init__(self):
+    def __init__(self, type: IdType):
         super().__init__(id = "popup_base")
 
-        num = str(len(data["spaces"][current_uuid].people))
+        self.type = type
+
+        if self.type == IdType.DM:
+            self.key = "dms"
+        else:
+            self.key = "spaces"
+
+        num = str(len(data[self.key][current_uuid].people))
 
         self._name = "Temp Temp " + num
         self._email = "Temp_" + num + "@temp.temp"
@@ -282,9 +330,13 @@ class AddPersonScreen(ModalScreen):
         if event.button.id == "cancel":
             app.pop_screen()
         elif event.button.id == "save":
-            data["spaces"][current_uuid].add_person(Person(self._name, self._email))
+            data[self.key][current_uuid].add_person(Person(self._name, self._email))
             app.pop_screen()
-            app.switch_screen("DM Creation Menu")
+
+            if self.type == IdType.DM:
+                app.switch_screen("DM Creation Menu")
+            else:
+                app.switch_screen("Space Creation Menu")
     
     def on_input_changed(self, event: Input.Changed):
         if (event.input.id == "name"):
@@ -295,10 +347,16 @@ class AddPersonScreen(ModalScreen):
 class RemovePopup(ModalScreen):
     CSS_PATH = "styles/popup.tcss"
 
-    def __init__(self, index: int):
+    def __init__(self, index: int, type: IdType):
         super().__init__(id = "popup_base")
         self.index = index
         self._name = data["spaces"][current_uuid].people[self.index].name
+        self.type = type
+
+        if self.type == IdType.DM:
+            self.key = "dms"
+        else:
+            self.key = "spaces"
 
     def compose(self) -> ComposeResult:
         yield CenterMiddle(
@@ -314,21 +372,31 @@ class RemovePopup(ModalScreen):
         if event.button.id == "no":
             app.pop_screen()
         elif event.button.id == "yes":
-            data["spaces"][current_uuid].people.pop(self.index)
+            data[self.key][current_uuid].people.pop(self.index)
             app.pop_screen()
-            app.switch_screen("DM Creation Menu")
+
+            if self.type == IdType.DM:
+                app.switch_screen("DM Creation Menu")
+            else:
+                app.switch_screen("Space Creation Menu")
 
 class EditPersonMenu(ModalScreen):
 
     CSS_PATH = "styles/popup.tcss"
 
-    def __init__(self, index: int):
+    def __init__(self, index: int, type: IdType):
         super().__init__(id = "popup_base")
 
         self.index = index
 
         self._name = data["spaces"][current_uuid].people[self.index].name
         self._email = data["spaces"][current_uuid].people[self.index].email
+        self.type = type
+
+        if self.type == IdType.DM:
+            self.key = "dms"
+        else:
+            self.key = "spaces"
 
     def compose(self) -> ComposeResult:
         yield CenterMiddle(
@@ -354,7 +422,11 @@ class EditPersonMenu(ModalScreen):
             data["spaces"][current_uuid].people[self.index].name = self._name 
             data["spaces"][current_uuid].people[self.index].email = self._email 
             app.pop_screen()
-            app.switch_screen("DM Creation Menu")
+            
+            if self.type == IdType.DM:
+                app.switch_screen("DM Creation Menu")
+            else:
+                app.switch_screen("Space Creation Menu")
     
     def on_input_changed(self, event: Input.Changed):
         if (event.input.id == "name"):
