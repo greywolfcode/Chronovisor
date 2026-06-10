@@ -32,6 +32,7 @@ class Archive():
         self.messages = []
         self.people = []
         self.type = type
+        self.name = ""
     def add_message(self, message: Message):
         self.messages.append(Message)
     def add_person(self, person: Person):
