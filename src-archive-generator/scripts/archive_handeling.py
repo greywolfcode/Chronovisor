@@ -26,9 +26,10 @@ class Person():
         self.email = email
 
 class Message():
-    def __init__(self, message: str):
+    def __init__(self, message: str, person: Person, time: datetime):
         self.message = message
-        self.time = datetime.now(timezone.utc)
+        self.person = person
+        self.time = time
 
 class Archive():
     def __init__(self, uuid: str, type: IdType):
