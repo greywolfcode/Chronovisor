@@ -15,6 +15,9 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from datetime import datetime
+from datetime import timezone
+
 from enum import Enum
 
 from rich.text import Text
@@ -190,7 +193,7 @@ class DMCreationMenu(Screen):
             self.editor = PersonEditingMenu(2, IdType.DM) # can't add more prople to DM
             self.mount(self.editor)
         elif event.button.id == "edit_dm":
-            self.editor = DataEditingMenu(False) #max 400 people in personal spaces
+            self.editor = DataEditingMenu(False, IdType.DM) #max 400 people in personal spaces
             self.mount(self.editor)
 
 class SpaceCreationMenu(Screen):
@@ -229,7 +232,7 @@ class SpaceCreationMenu(Screen):
             self.editor = PersonEditingMenu(400, IdType.SPACE) #max 400 people in personal spaces
             self.mount(self.editor)
         elif event.button.id == "edit_space":
-            self.editor = DataEditingMenu(True) #max 400 people in personal spaces
+            self.editor = DataEditingMenu(True, IdType.SPACE) #max 400 people in personal spaces
             self.mount(self.editor)
 
 class PersonEditingMenu(VerticalScroll):
@@ -444,69 +447,108 @@ class EditPersonMenu(ModalScreen):
             self._email = event.input.value
 
 class DataEditingMenu(Container):
-    def __init__(self, edit_name: bool):
+    def __init__(self, edit_name: bool, type: IdType):
         super().__init__()
         self.edit_name = edit_name
+        self.type = type
+
+        if self.type == IdType.DM:
+            self.key = "dms"
+        else:
+            self.key = "spaces"
+        
+        self._name = data[self.key][current_uuid].name
+        self._year = data[self.key][current_uuid].start_time.year
+        self._month = data[self.key][current_uuid].start_time.month
+        self._day = data[self.key][current_uuid].start_time.day
+        self._hour = data[self.key][current_uuid].start_time.hour
+        self._minute = data[self.key][current_uuid].start_time.minute
+        self._second = data[self.key][current_uuid].start_time.second
 
     def compose(self) -> ComposeResult:
         yield Horizontal(
             Label("Month:"),
             Input(
-                placeholder="9",
+                placeholder=str(self._month),
                 validators=[
                 Number(minimum=1, maximum=12),  
                 ],
+                id="month"
             ),
             Label("Day:"),
             Input(
-                placeholder="4",
+                placeholder=str(self._day),
                 validators=[
                 Number(minimum=1, maximum=31),  
                 ],
+                id="day"
             ),
             Label("Year:"),
             Input(
-                placeholder="1998",
+                placeholder=str(self._year),
                 validators=[
                 Number(minimum=1998),  
                 ],
+                id="year"
             ),
             Label("Hour"),
             Input(
-                placeholder="0",
+                placeholder=str(self._hour),
                 validators=[
                 Number(minimum=0, maximum=23),  
                 ],
+                id="hour"
             ),
             Label("Minute"),
             Input(
-                placeholder="0",
+                placeholder=str(self._minute),
                 validators=[
                 Number(minimum=0, maximum=59),  
                 ],
+                id="minute"
             ),
             Label("Second"),
             Input(
-                placeholder="0",
+                placeholder=str(self._second),
                 validators=[
                 Number(minimum=0, maximum=59),  
                 ],
+                id="second"
             )
         )
+
+        yield Button(label = "Save", id = "save")
         
     def on_mount(self) -> None:
         if self.edit_name:
             self.mount(
                 Horizontal(
                     Label("Name"),
-                    Input(
-                            placeholder="Temp",
-                            validators=[
-                            Number(minimum=1, maximum=12),  
-                            ],
-                        ),
+                    Input(placeholder="Temp", id="name"),
                 )
             )
+    
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "save":
+            if self.edit_name:
+                data[self.key][current_uuid].name = self._name
+            data[self.key][current_uuid].start_time = datetime(int(self._year), int(self._month), int(self._day), int(self._hour), int(self._minute), int(self._second)).astimezone(timezone.utc)
+            
+    def on_input_changed(self, event: Input.Changed):
+        if event.input.id == "name":
+            self._name = event.input.value
+        elif event.input.id == "day":
+            self._day = event.input.value
+        elif event.input.id == "month":
+            self._month = event.input.value
+        elif event.input.id == "year":
+            self._year = event.input.value
+        elif event.input.id == "hour":
+            self._hour = event.input.value
+        elif event.input.id == "minute":
+            self._minute = event.input.value
+        elif event.input.id == "second":
+            self._second = event.input.value
 
 class LicenceScreen(ModalScreen):
 
