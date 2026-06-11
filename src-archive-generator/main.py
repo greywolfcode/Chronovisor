@@ -199,6 +199,9 @@ class DMCreationMenu(Screen):
         elif event.button.id == "add_message":
             self.editor = MessageAddingMenu(IdType.DM)
             self.mount(self.editor)
+        elif event.button.id == "finish":
+            app.set_state(State.HUB)
+            app.switch_screen("Hub Menu")
 
 class SpaceCreationMenu(Screen):
     
@@ -241,6 +244,10 @@ class SpaceCreationMenu(Screen):
         elif event.button.id == "add_message":
             self.editor = MessageAddingMenu(IdType.SPACE)
             self.mount(self.editor)
+        elif event.button.id == "finish":
+            app.set_state(State.HUB)
+            app.switch_screen("Hub Menu")
+
 
 class PersonEditingMenu(VerticalScroll):
     def __init__(self, max_people: int, type: IdType):
