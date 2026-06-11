@@ -22,11 +22,12 @@ from enum import Enum
 
 from rich.text import Text
 
+from textual import on
 from textual.app import App, ComposeResult
 from textual.containers import CenterMiddle, Container, Horizontal, Vertical, VerticalScroll
 from textual.screen import ModalScreen, Screen
 from textual.validation import Number
-from textual.widgets import Button, ContentSwitcher, DataTable, Footer, Header, Input, Label
+from textual.widgets import Button, ContentSwitcher, DataTable, Footer, Header, Input, Label, Select
 
 from scripts.id_handeler import IdType
 
@@ -193,7 +194,10 @@ class DMCreationMenu(Screen):
             self.editor = PersonEditingMenu(2, IdType.DM) # can't add more prople to DM
             self.mount(self.editor)
         elif event.button.id == "edit_dm":
-            self.editor = DataEditingMenu(False, IdType.DM) #max 400 people in personal spaces
+            self.editor = DataEditingMenu(False, IdType.DM)
+            self.mount(self.editor)
+        elif event.button.id == "add_message":
+            self.editor = MessageAddingMenu(IdType.DM)
             self.mount(self.editor)
 
 class SpaceCreationMenu(Screen):
@@ -232,7 +236,10 @@ class SpaceCreationMenu(Screen):
             self.editor = PersonEditingMenu(400, IdType.SPACE) #max 400 people in personal spaces
             self.mount(self.editor)
         elif event.button.id == "edit_space":
-            self.editor = DataEditingMenu(True, IdType.SPACE) #max 400 people in personal spaces
+            self.editor = DataEditingMenu(True, IdType.SPACE)
+            self.mount(self.editor)
+        elif event.button.id == "add_message":
+            self.editor = MessageAddingMenu(IdType.SPACE)
             self.mount(self.editor)
 
 class PersonEditingMenu(VerticalScroll):
@@ -465,6 +472,8 @@ class DataEditingMenu(Container):
         self._minute = data[self.key][current_uuid].start_time.minute
         self._second = data[self.key][current_uuid].start_time.second
 
+        self._person = data[self.key][current_uuid].people[0]
+
     def compose(self) -> ComposeResult:
         yield Horizontal(
             Label("Month:"),
@@ -549,6 +558,121 @@ class DataEditingMenu(Container):
             self._minute = event.input.value
         elif event.input.id == "second":
             self._second = event.input.value
+
+class MessageAddingMenu(Container):
+    def __init__(self, type: IdType):
+        super().__init__()
+        self.type = type
+
+        if self.type == IdType.DM:
+            self.key = "dms"
+        else:
+            self.key = "spaces"
+        
+        self._year = data[self.key][current_uuid].start_time.year
+        self._month = data[self.key][current_uuid].start_time.month
+        self._day = data[self.key][current_uuid].start_time.day
+        self._hour = data[self.key][current_uuid].start_time.hour
+        self._minute = data[self.key][current_uuid].start_time.minute
+        self._second = data[self.key][current_uuid].start_time.second
+
+        self._message = ""
+
+        self._person = data[self.key][current_uuid].people[0]
+    def compose(self) -> ComposeResult:
+
+        yield Horizontal(
+            Label("Person:"),
+            Select.from_values(data[self.key][current_uuid].people)
+        )
+
+        yield Horizontal(
+            Label("Month:"),
+            Input(
+                placeholder=str(self._month),
+                validators=[
+                Number(minimum=1, maximum=12),  
+                ],
+                id="month"
+            ),
+            Label("Day:"),
+            Input(
+                placeholder=str(self._day),
+                validators=[
+                Number(minimum=1, maximum=31),  
+                ],
+                id="day"
+            ),
+            Label("Year:"),
+            Input(
+                placeholder=str(self._year),
+                validators=[
+                Number(minimum=1998),  
+                ],
+                id="year"
+            ),
+            Label("Hour"),
+            Input(
+                placeholder=str(self._hour),
+                validators=[
+                Number(minimum=0, maximum=23),  
+                ],
+                id="hour"
+            ),
+            Label("Minute"),
+            Input(
+                placeholder=str(self._minute),
+                validators=[
+                Number(minimum=0, maximum=59),  
+                ],
+                id="minute"
+            ),
+            Label("Second"),
+            Input(
+                placeholder=str(self._second),
+                validators=[
+                Number(minimum=0, maximum=59),  
+                ],
+                id="second"
+            )
+        )
+
+        yield Horizontal(
+            Label("Message:"),
+            Input(
+                placeholder=self._message,
+                id="message"
+            )
+        )
+
+        yield Button(label = "Save", id = "save")
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "save":
+            date = datetime(int(self._year), int(self._month), int(self._day), int(self._hour), int(self._minute), int(self._second)).astimezone(timezone.utc)
+            message = Message(self._message, date, self._person)
+            data[self.key][current_uuid].add_message(message)
+
+    @on(Select.Changed)
+    def select_changed(self, event: Select.Changed) -> None:
+        self._person = event.value
+
+    def on_input_changed(self, event: Input.Changed):
+        if event.input.id == "name":
+            self._name = event.input.value
+        elif event.input.id == "day":
+            self._day = event.input.value
+        elif event.input.id == "month":
+            self._month = event.input.value
+        elif event.input.id == "year":
+            self._year = event.input.value
+        elif event.input.id == "hour":
+            self._hour = event.input.value
+        elif event.input.id == "minute":
+            self._minute = event.input.value
+        elif event.input.id == "second":
+            self._second = event.input.value
+        elif event.input.id == "message":
+            self._message = event.input.value
 
 class LicenceScreen(ModalScreen):
 
