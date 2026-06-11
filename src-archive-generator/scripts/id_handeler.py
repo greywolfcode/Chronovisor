@@ -21,7 +21,8 @@ import uuid
 
 class IdType(Enum):
     SPACE = 0,
-    DM = 1
+    DM = 1,
+    MESSAGE = 2
 
     @staticmethod
     def gen_id(type) -> str:
@@ -36,3 +37,5 @@ class IdType(Enum):
             return "Space " + id_base64.decode("utf-8")
         elif type == IdType.DM:
             return "DM " + id_base64.decode("utf-8")
+        else:
+            return id_base64.decode("utf-8")
