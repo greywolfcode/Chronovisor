@@ -26,6 +26,8 @@ import json
 
 from zipfile import ZipFile, ZIP_DEFLATED
 
+from scripts.date_converter import date_to_path_string
+
 from scripts.id_handeler import IdType
 from scripts.date_converter import datetime_to_string
 
@@ -55,7 +57,7 @@ class Archive():
     def add_person(self, person: Person):
         self.people.append(person)
 
-class GeneratedArchives():
+class GeneratedArchive():
     def __init__(self, uuid: str, group_info: str, messages: str):
         self.uuid = uuid
         self.group_info = group_info
@@ -117,16 +119,18 @@ def export(archives: dict, output_folder:str | Path):
         group_info_json = json.dumps(group_info)
         messages_json = json.dumps(messages)
 
-        generated_archives.append(group_info_json)
-        generated_archives.append(messages_json)
+        generated_archives.append(GeneratedArchive(archive.uuid, group_info_json, messages_json))
 
-    output_filename = "chronovisor-generator_takeout-" + str(datetime.now())
+    output_filename = "chronovisor-generator_takeout-" + date_to_path_string(datetime.now()) + ".zip"
 
-    with ZipFile(Path(output_folder, output_filename), 'w', ZIP_DEFLATED) as output:
+    output_path = Path(output_folder, output_filename)
+    logger.info("Writing to: " + str(output_path))
+
+    with ZipFile(output_path, 'w', ZIP_DEFLATED) as output:
 
         logger.info("Started writing archives...")
         for archive in generated_archives:
             logger.info("Writing archive " + archive.uuid)
-            output.writestr(Path(archive.uuid, "group_info.json"), archive.group_info)
-            output.writestr(Path(archive.uuid, "messages.json"), archive.messages)
+            output.writestr(str(Path(archive.uuid, "group_info.json")), archive.group_info)
+            output.writestr(str(Path(archive.uuid, "messages.json")), archive.messages)
         logger.info("Wrote all archives")
