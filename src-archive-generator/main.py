@@ -707,7 +707,9 @@ class MessageAddingMenu(Container):
         if event.button.id == "save":
             date = datetime(int(self._year), int(self._month), int(self._day), int(self._hour), int(self._minute), int(self._second)).astimezone(timezone.utc)
             self.mount(Label(self._person))
-            message = Message(self._message, date, self._person)
+            message = Message(self._message, self._person, date)
+            data[self.key][current_uuid].add_message(message)
+
             logger.debug(f"Saved message")
 
     @on(Select.Changed)
@@ -762,7 +764,7 @@ class ExportMenu(Screen):
             current_uuid = None
 
             self.state = State.MAIN_MENU
-            self.push_screen("Main Menu")
+            app.push_screen("Main Menu")
 
     def on_mount(self) -> None:
         # there is only one, but it is easier to use a for loop to get the actual button

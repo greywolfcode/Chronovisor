@@ -53,7 +53,7 @@ class Archive():
         self.name = ""
         self.start_time = datetime.now(timezone.utc)
     def add_message(self, message: Message):
-        self.messages.append(Message)
+        self.messages.append(message)
     def add_person(self, person: Person):
         self.people.append(person)
 
@@ -94,8 +94,8 @@ def export(archives: dict, output_folder:str | Path):
         topic_ids = []
 
         for message in archive.messages:
-
             logger.debug("Logging message")
+            logger.info(vars(message))
 
             topic_id = IdType.gen_id(IdType.MESSAGE)
             topic_ids.append(topic_id)
@@ -111,7 +111,7 @@ def export(archives: dict, output_folder:str | Path):
                 "created_date": datetime_to_string(message.time),
                 "text": message.text,
                 "topic_id": topic_id,
-                "message_id": "{archive_id}/{topic_id}/{topic_id}"
+                "message_id": f"{archive_id}/{topic_id}/{topic_id}"
             }
 
             messages["messages"].append(message_data)
