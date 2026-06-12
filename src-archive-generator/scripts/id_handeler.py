@@ -25,10 +25,10 @@ class IdType(Enum):
     DM = 1,
     MESSAGE = 2
 
-    logger = logging.getLogger(__name__)
 
     @staticmethod
     def gen_id(type) -> str:
+        logger = logging.getLogger(__name__)   
         """
         Generates a unique filesystem/url safe id for spaces/dms
         """

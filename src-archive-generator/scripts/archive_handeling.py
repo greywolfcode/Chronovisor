@@ -18,11 +18,13 @@
 from datetime import datetime
 from datetime import timezone
 
+import logging
+
 from pathlib import Path
 
 import json
 
-import zipfile
+from zipfile import ZipFile, ZIP_DEFLATED
 
 from scripts.id_handeler import IdType
 from scripts.date_converter import datetime_to_string
@@ -61,11 +63,14 @@ class GeneratedArchives():
 
 def export(archives: dict, output_folder:str | Path):
 
+    logger = logging.getLogger(__name__)
+
     generated_archives  = []
 
     for archive in archives.values(): #keys are just the uuid
 
         archive_id = archive.uuid.split(" ")[1] # get just number portion
+        logger.debug("Formatting archive " + archive_id)
 
         group_info = {
             "members": []
@@ -74,6 +79,8 @@ def export(archives: dict, output_folder:str | Path):
             "messages": []
         }
         for person in archive.people:
+
+            logger.debug("Formatting person " + str(person))
 
             person_data = {
                 "name": person.name,
@@ -86,8 +93,12 @@ def export(archives: dict, output_folder:str | Path):
 
         for message in archive.messages:
 
+            logger.debug("Logging message")
+
             topic_id = IdType.gen_id(IdType.MESSAGE)
             topic_ids.append(topic_id)
+
+            logger.debug("Created topic id " + topic_id)
 
             message_data = {
                 "creator": {
@@ -109,10 +120,13 @@ def export(archives: dict, output_folder:str | Path):
         generated_archives.append(group_info_json)
         generated_archives.append(messages_json)
 
-    output_filename = "chronovisor-generator_takeout-" + datetime.now()
+    output_filename = "chronovisor-generator_takeout-" + str(datetime.now())
 
-    with ZipFile(Path(output_folder, output_filename), 'w', zipfile.ZIP_DEFLATED) as output:
+    with ZipFile(Path(output_folder, output_filename), 'w', ZIP_DEFLATED) as output:
 
+        logger.info("Started writing archives...")
         for archive in generated_archives:
+            logger.info("Writing archive " + archive.uuid)
             output.writestr(Path(archive.uuid, "group_info.json"), archive.group_info)
             output.writestr(Path(archive.uuid, "messages.json"), archive.messages)
+        logger.info("Wrote all archives")
