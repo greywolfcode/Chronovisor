@@ -63,7 +63,7 @@ def export(archives: dict, output_folder:str | Path):
 
     generated_archives  = []
 
-    for archive in archives:
+    for archive in archives.values(): #keys are just the uuid
 
         archive_id = archive.uuid.split(" ")[1] # get just number portion
 

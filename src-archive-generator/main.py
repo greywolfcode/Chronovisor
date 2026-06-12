@@ -22,7 +22,7 @@ from enum import Enum
 
 from rich.text import Text
 
-from textual import on
+from textual import on, work
 from textual.app import App, ComposeResult
 from textual.containers import CenterMiddle, Container, Horizontal, Vertical, VerticalScroll
 from textual.screen import ModalScreen, Screen
@@ -31,7 +31,7 @@ from textual.widgets import Button, ContentSwitcher, DataTable, Footer, Header, 
 
 from scripts.id_handeler import IdType
 
-from scripts.archive_handeling import Archive, Message, Person
+from scripts.archive_handeling import Archive, Message, Person, export
 
 data = {
     "spaces": {},
@@ -46,7 +46,8 @@ class State(Enum):
     HUB = 2,
     CREATE_DM = 3,
     EDIT_PEOPLE = 4,
-    CREATE_SPACE = 5
+    CREATE_SPACE = 5,
+    EXPORTING = 6
 
 class MainMenu(Screen):
     def compose(self) -> ComposeResult:
@@ -157,6 +158,10 @@ class HubMenu(Screen):
             app.set_state(State.CREATE_SPACE)
             app.install_screen(SpaceCreationMenu(), name = "Space Creation Menu")
             app.switch_screen("Space Creation Menu")
+        elif event.button.id == "export":
+            app.set_state(State.EXPORTING)
+            app.install_screen(ExportMenu(), name = "Export Menu")
+            app.switch_screen("Export Menu")
 
 class DMCreationMenu(Screen):
 
@@ -656,8 +661,8 @@ class MessageAddingMenu(Container):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "save":
             date = datetime(int(self._year), int(self._month), int(self._day), int(self._hour), int(self._minute), int(self._second)).astimezone(timezone.utc)
+            self.mount(Label(self._person))
             message = Message(self._message, date, self._person)
-            data[self.key][current_uuid].add_message(message)
 
     @on(Select.Changed)
     def select_changed(self, event: Select.Changed) -> None:
@@ -680,6 +685,37 @@ class MessageAddingMenu(Container):
             self._second = event.input.value
         elif event.input.id == "message":
             self._message = event.input.value
+
+class ExportMenu(Screen):
+
+    def compose(self) -> ComposeResult:
+        yield Label("Exporting...")
+        yield Button(label="Done", id="done")
+    
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "done":
+            global data
+            global current_uuid
+
+            data = {
+                 "spaces": {},
+                "dms": {}
+            }
+            current_uuid = None
+
+            self.state = State.MAIN_MENU
+            self.push_screen("Main Menu")
+
+    def on_mount(self) -> None:
+        # there is only one, but it is easier to use a for loop to get the actual button
+        for button_screen in self.query(Button):
+            button_screen.loading = True
+            self.export_current(button_screen)
+
+    @work(exclusive=True)
+    async def export_current(self, button_screen: Button):
+        export(data["dms"] | data["spaces"], "") # export to main directory for now
+        button_screen.loading = False
 
 class LicenceScreen(ModalScreen):
 
