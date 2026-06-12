@@ -1,0 +1,12 @@
+#popup_base {
+    align: center middle;
+}
+
+#popup {
+    align: center middle;
+    content-align: center middle;
+    border: thick $background 80%;
+    background: $surface;
+    width: auto;
+    height: auto;
+}

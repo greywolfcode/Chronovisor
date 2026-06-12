@@ -1,0 +1,13 @@
+CreateUserMenu {
+    layout: horizontal;
+    width: 1fr; 
+}
+
+Input {
+    width: 1fr;
+}
+
+#sidebar {
+    dock: left;
+    width: 20;
+}

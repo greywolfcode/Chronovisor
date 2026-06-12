@@ -1,0 +1,4 @@
+HubMenu {
+    align: center middle;
+    layout: horizontal;
+}
