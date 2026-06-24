@@ -27,24 +27,39 @@ import 'package:archive/archive.dart';
 
 final chatPath = 'Takeout/Google Chat';
 
-ChatArchive loadExport(String path)
+void loadExport(String path)
+{
+  Directory('save').createSync(recursive: true);
+
+  final inputStream = InputFileStream(path);
+
+  final archive = ZipDecoder().decodeStream(inputStream);
+
+  for (final file in archive) 
+  {
+
+    //No symbolic links in Chat Archives
+
+    if (file.isFile) {
+      //file.name includes directory path
+      final outputStream = OutputFileStream('save/${file.name}');
+      
+      file.writeContent(outputStream);
+      outputStream.closeSync();
+    } 
+    else 
+    {
+      Directory('save/${file.name}').createSync(recursive: true);
+    }
+  }
+}
+
+ChatArchive processArchive(String path)
 {
   final bytes = File(path).readAsBytesSync();
   final archive = ZipDecoder().decodeBytes(bytes);
 
   final List<ArchiveFile> chatFolder = [];
-
-  for (final entry in archive)
-  {
-    //only want folders
-    if (entry.isFile)
-    {
-      if (entry.name.contains(chatPath))
-      {
-        chatFolder.add(entry);
-      }
-    }    
-  }
 
   String user = '';
   List<MessageGroup> dms = [];
