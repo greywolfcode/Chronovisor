@@ -89,8 +89,6 @@ class Model
 
 void load(List<String?> paths)
 {
-  print('run load');
-
   for (final path in paths)
   {
     if (path == null)
@@ -99,7 +97,6 @@ void load(List<String?> paths)
     }
     loadExport(path);
   }
-
 } 
 
 class ViewModel extends ChangeNotifier
