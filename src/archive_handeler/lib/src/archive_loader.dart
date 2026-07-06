@@ -29,7 +29,14 @@ final chatPath = 'Takeout/Google Chat';
 
 void loadExport(String path)
 {
-  Directory('save').createSync(recursive: true);
+  final saveDir = Directory('save');
+
+  saveDir.createSync(recursive: true);
+
+  final numFolders = saveDir.listSync(recursive: false).length;
+
+  final outputPath = 'save/user${(numFolders + 1).toString().padLeft(8, '0')}';
+  Directory(outputPath).createSync(recursive: true);
 
   final inputStream = InputFileStream(path);
 
@@ -42,14 +49,14 @@ void loadExport(String path)
 
     if (file.isFile) {
       //file.name includes directory path
-      final outputStream = OutputFileStream('save/${file.name}');
+      final outputStream = OutputFileStream('$outputPath/${file.name.replaceFirst('Takeout/Google Chat/', '')}');
       
       file.writeContent(outputStream);
       outputStream.closeSync();
     } 
     else 
     {
-      Directory('save/${file.name}').createSync(recursive: true);
+      Directory('$outputPath/${file.name.replaceFirst('Takeout/Google Chat/', '')}').createSync(recursive: true);
     }
   }
 }
