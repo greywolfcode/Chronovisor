@@ -14,8 +14,8 @@
 .history
 
 #Generated files
-*/*.g.dart
-*/*.freezed.dart
+*/**/*.g.dart
+*/**/*.freezed.dart
 
 # Flutter repo-specific
 /bin/cache/
