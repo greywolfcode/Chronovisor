@@ -27,7 +27,7 @@ import 'package:archive/archive.dart';
 
 final chatPath = 'Takeout/Google Chat';
 
-void loadExport(String path)
+String loadExport(String path)
 {
   final saveDir = Directory('save');
 
@@ -59,6 +59,8 @@ void loadExport(String path)
       Directory('$outputPath/${file.name.replaceFirst('Takeout/Google Chat/', '')}').createSync(recursive: true);
     }
   }
+
+  return outputPath;
 }
 
 ChatArchive processArchive(String path)
