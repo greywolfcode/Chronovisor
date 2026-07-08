@@ -22,6 +22,8 @@ import 'package:flutter/material.dart';
 
 import 'package:file_picker/file_picker.dart';
 
+import 'package:data_handeler/main.dart';
+
 import 'package:archive_handeler/main.dart';
 
 import 'themes.dart';
@@ -95,7 +97,8 @@ void load(List<String?> paths)
     {
       continue;
     }
-    loadExport(path);
+    var outputPath = loadExport(path);
+    addArchive(outputPath, "user");
   }
 } 
 
