@@ -8,17 +8,20 @@ environment:
 
 dependencies:
   file_picker: ^11.0.2
-  data_handeler:
-    path: ../data_handeler
   flutter:
     sdk: flutter
   resizable_widget: ^1.0.5
   archive: ^4.0.9
+  drift: ^2.34.1
+  drift_flutter: ^0.3.0
+  path_provider: ^2.1.6
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  drift_dev: ^2.34.2+1
+  build_runner: ^2.15.1
 
 flutter:
   uses-material-design: true
