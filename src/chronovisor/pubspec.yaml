@@ -8,13 +8,12 @@ environment:
 
 dependencies:
   file_picker: ^11.0.2
-  archive_handeler:
-    path: ../archive_handeler
   data_handeler:
     path: ../data_handeler
   flutter:
     sdk: flutter
   resizable_widget: ^1.0.5
+  archive: ^4.0.9
 
 dev_dependencies:
   flutter_test:

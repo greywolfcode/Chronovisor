@@ -24,7 +24,7 @@ import 'package:file_picker/file_picker.dart';
 
 import 'package:data_handeler/main.dart';
 
-import 'package:archive_handeler/main.dart';
+import 'archive_handeler/archive_loader.dart';
 
 import 'themes.dart';
 
