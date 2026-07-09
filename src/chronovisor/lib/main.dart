@@ -22,9 +22,9 @@ import 'package:flutter/material.dart';
 
 import 'package:file_picker/file_picker.dart';
 
-import 'package:data_handeler/main.dart';
+import 'archive_handeler/archive_loader.dart';
 
-import 'package:archive_handeler/main.dart';
+import 'data_handeler/data_handeler.dart';
 
 import 'themes.dart';
 
