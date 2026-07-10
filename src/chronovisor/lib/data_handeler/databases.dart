@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:path/path.dart';
+
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 
@@ -23,6 +25,9 @@ class ArchivesDatabase extends _$ArchivesDatabase
 
   static QueryExecutor _openConnection() 
   {
-    return NativeDatabase.createInBackground(File('save/archives.sqlite'));
+    final file = File(join('save', 'archives.sqlite'));
+    final absolutePath = file.absolute;
+
+    return NativeDatabase(absolutePath);
   }
 }
