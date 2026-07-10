@@ -2,7 +2,7 @@ import 'databases.dart';
 
 final _archiveDatabase = ArchivesDatabase();
 
-void addArchive(String path, String user) async 
+Future<void> addArchive(String path, String user) async 
 {
   await _archiveDatabase
       .into(_archiveDatabase.archivesTable)

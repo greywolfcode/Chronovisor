@@ -89,7 +89,7 @@ class Model
   
 }
 
-void load(List<String?> paths)
+void load(List<String?> paths) async
 {
   for (final path in paths)
   {
@@ -98,7 +98,7 @@ void load(List<String?> paths)
       continue;
     }
     var outputPath = loadExport(path);
-    addArchive(outputPath, "user");
+    await addArchive(outputPath, "user");
   }
 } 
 
