@@ -21,6 +21,8 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:path/path.dart' as p;
+
 import 'package:archive/archive_io.dart';
 
 import 'package:archive/archive.dart';
@@ -35,7 +37,7 @@ String loadExport(String path)
 
   final numFolders = saveDir.listSync(recursive: false).length;
 
-  final outputPath = 'save/user${(numFolders + 1).toString().padLeft(8, '0')}';
+  final outputPath = p.join('save', 'user${(numFolders + 1).toString().padLeft(8, '0')}');
   Directory(outputPath).createSync(recursive: true);
 
   final inputStream = InputFileStream(path);
