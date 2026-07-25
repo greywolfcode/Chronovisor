@@ -20,16 +20,18 @@ class Message {
 
   Creator creator;
 
-  @JsonKey(name: 'created_date')
-  String createdDate;
+  //TODO: Parse different message types instead of nullable options
 
-  String text;
+  @JsonKey(name: 'created_date')
+  String? createdDate;
+
+  String? text;
 
   @JsonKey(name: 'topic_id')
-  String topicId;
+  String? topicId;
 
   @JsonKey(name: 'message_id')
-  String messageId;
+  String? messageId;
 
   factory Message.fromJson(Map<String, dynamic> json) => _$MessageFromJson(json);
 
@@ -41,7 +43,9 @@ class Creator {
   Creator(this.name, this.email, this.userType);
 
   String name;
-  String email;
+
+  //Bots don't have an email
+  String? email;
 
   @JsonKey(name: 'user_type')
   String userType;
