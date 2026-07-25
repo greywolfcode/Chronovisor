@@ -24,12 +24,16 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 
 import 'package:archive/archive_io.dart';
-
 import 'package:archive/archive.dart';
+
+import 'package:intl/intl.dart';
+
+import '../data_handeler/messages_json.dart';
+import '../data_handeler/messages_database.dart';
 
 final chatPath = 'Takeout/Google Chat';
 
-String loadExport(String path)
+Future<String> loadExport(String path) async
 {
   final saveDir = Directory('save');
 
@@ -62,7 +66,47 @@ String loadExport(String path)
     }
   }
 
+  await generateDatabases(outputPath);
+
   return outputPath;
+}
+Future<void> generateDatabases(String dirPath) async
+{
+  final archiveDir = Directory(p.join(dirPath, "Groups"));
+  final  List<Directory> groups = archiveDir.listSync(recursive: false, followLinks: false).whereType<Directory>().toList();
+
+  for (Directory group in groups)
+  {
+    File messagesPath = File(p.join(group.path, "messages.json"));
+    //TODO:Show error to user
+    if (!messagesPath.existsSync())
+    {
+      continue;
+    }
+
+    final jsonData = messagesPath.readAsStringSync();
+    final message_data = jsonDecode(jsonData) as Map<String, dynamic>;
+    final messages = ChatData.fromJson(message_data); 
+
+    final database = MessagesDatabase(File(p.join(group.path, "messages.sqlite")));
+    for (Message message in messages.messages)
+    {
+      //TODO: Remove when multiple message types are handled
+      message.createdDate ??= "Thursday, January 1, 1970 at 12:00:00 AM UTC";
+      message.text ??= "Lorem ipsum dolor sit amet, consectetur adipiscing elit";
+      message.topicId ??= "aaaaaaaaaaa/bbbbbbbbbbb/bbbbbbbbbbb";
+      message.creator.email ??= "temp@temp.temp";
+
+      await database
+        .into(database.messagesTable)
+        .insert(MessagesTableCompanion.insert(name: message.creator.name, email: message.creator.email!, userType: message.creator.userType,
+          createdDate: convertDate(message.createdDate!), messageText: message.text!, topicId: message.topicId!));
+    }
+  }
+}
+DateTime convertDate(String date)
+{
+  return DateFormat("EEEE, MMMM dd, yyyy 'at' h:mm:ss' 'a 'UTC'").parse(date, true);
 }
 
 ChatArchive processArchive(String path)
