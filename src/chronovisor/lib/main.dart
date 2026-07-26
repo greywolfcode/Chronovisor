@@ -25,6 +25,7 @@ import 'package:file_picker/file_picker.dart';
 import 'archive_handeler/archive_loader.dart';
 
 import 'data_handeler/data_handeler.dart';
+import 'data_handeler/drift_setup.dart';
 
 import 'themes.dart';
 
@@ -91,13 +92,16 @@ class Model
 
 void load(List<String?> paths) async
 {
+  //Don't error when using Messages database multiple times
+  driftSetup();
+
   for (final path in paths)
   {
     if (path == null)
     {
       continue;
     }
-    var outputPath = loadExport(path);
+    var outputPath = await loadExport(path);
     await addArchive(outputPath, "user");
   }
 } 
