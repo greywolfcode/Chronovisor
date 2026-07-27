@@ -16,9 +16,9 @@ class ChatData {
 
 @JsonSerializable(explicitToJson: true)
 class Message {
-  Message(this.creator, this.text, this.createdDate, this.topicId, this.messageId);
 
-  Creator creator;
+  @_CreatorConverter()
+  final Creator creator;
 
   //TODO: Parse different message types instead of nullable options
 
@@ -33,24 +33,75 @@ class Message {
   @JsonKey(name: 'message_id')
   String? messageId;
 
+  Message({required this.creator, this.text, this.createdDate, this.topicId, this.messageId});
+
   factory Message.fromJson(Map<String, dynamic> json) => _$MessageFromJson(json);
 
   Map<String, dynamic> toJson() => _$MessageToJson(this);
 }
 
-@JsonSerializable()
-class Creator {
-  Creator(this.name, this.email, this.userType);
+class _CreatorConverter implements JsonConverter<Creator, Map<String, dynamic>>
+{
+  const _CreatorConverter();
 
+  @override
+  fromJson(Map<String, dynamic> json)
+  {
+    if (json.containsKey("email"))
+    {
+      return HumanCreator(
+        json["name"] as String, 
+        json["email"] as String
+      );
+    }
+    else
+    {
+      return BotCreator(
+        json["name"] as String
+      );
+    }
+  }
+
+  @override
+  Map<String, dynamic> toJson(Creator creator)
+  {
+    Map<String, dynamic> json = {};
+
+    json["name"] = creator.name;
+    json["type"] = creator.type;
+
+    if (creator is HumanCreator)
+    {
+      json["email"] = creator.email;
+    }
+
+    return json;
+  }
+}
+
+abstract class Creator
+{
+  String get type;
+  String get name;
+}
+
+class HumanCreator extends Creator
+{
+  @override
+  String type = "Human";
+  @override
+  String name;
+  String email;
+
+  HumanCreator(this.name, this.email);
+}
+
+class BotCreator extends Creator
+{
+  @override
+  String type = "Bot";
+  @override
   String name;
 
-  //Bots don't have an email
-  String? email;
-
-  @JsonKey(name: 'user_type')
-  String userType;
-
-  factory Creator.fromJson(Map<String, dynamic> json) => _$CreatorFromJson(json);
-
-  Map<String, dynamic> toJson() => _$CreatorToJson(this);
+  BotCreator(this.name);
 }

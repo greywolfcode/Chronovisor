@@ -95,11 +95,16 @@ Future<void> generateDatabases(String dirPath) async
       message.createdDate ??= "Thursday, January 1, 1970 at 12:00:00 AM UTC";
       message.text ??= "Lorem ipsum dolor sit amet, consectetur adipiscing elit";
       message.topicId ??= "aaaaaaaaaaa/bbbbbbbbbbb/bbbbbbbbbbb";
-      message.creator.email ??= "temp@temp.temp";
+
+      String email = "temp@temp.temp";
+      if (message.creator is HumanCreator)
+      {
+        email = (message.creator as HumanCreator).email;
+      }
 
       await database
         .into(database.messagesTable)
-        .insert(MessagesTableCompanion.insert(name: message.creator.name, email: message.creator.email!, userType: message.creator.userType,
+        .insert(MessagesTableCompanion.insert(name: message.creator.name, email:email, userType: message.creator.type,
           createdDate: convertDate(message.createdDate!), messageText: message.text!, topicId: message.topicId!));
     }
   }
