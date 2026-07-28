@@ -2,6 +2,8 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'messages_json.g.dart';
 
+// Chat Classes
+//--------------
 @JsonSerializable(explicitToJson: true)
 class ChatData {
   ChatData(this.messages);
@@ -13,33 +15,93 @@ class ChatData {
   Map<String, dynamic> toJson() => _$ChatDataToJson(this);
 }
 
-
 @JsonSerializable(explicitToJson: true)
-class Message {
-
+class Message
+{
   @_CreatorConverter()
-  final Creator creator;
-
-  //TODO: Parse different message types instead of nullable options
+  Creator creator;
 
   @JsonKey(name: 'created_date')
   String? createdDate;
-
-  String? text;
-
+  @JsonKey(name: 'updated_date')
+  String? updatedDate;
   @JsonKey(name: 'topic_id')
   String? topicId;
-
   @JsonKey(name: 'message_id')
   String? messageId;
+  @JsonKey(name: 'attached_files')
+  AttachedFiles? attachedFiles;
 
-  Message({required this.creator, this.text, this.createdDate, this.topicId, this.messageId});
+  Reaction? reactions;
+
+  String? text;
+  
+
+  Message(this.creator, this.topicId, this.messageId);
 
   factory Message.fromJson(Map<String, dynamic> json) => _$MessageFromJson(json);
 
   Map<String, dynamic> toJson() => _$MessageToJson(this);
 }
 
+// Attached Files Classes
+//------------------------
+@JsonSerializable(explicitToJson: true)
+class AttachedFiles
+{
+  List<AttachedFile> files;
+
+  AttachedFiles(this.files);
+
+  factory AttachedFiles.fromJson(Map<String, dynamic> json) => _$AttachedFilesFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AttachedFilesToJson(this);
+}
+@JsonSerializable(explicitToJson: true)
+class AttachedFile
+{
+  @JsonKey(name: "original_name")
+  String originalName;
+  @JsonKey(name: "export_name")
+  String exportName;
+
+  AttachedFile(this.originalName, this.exportName);
+
+  factory AttachedFile.fromJson(Map<String, dynamic> json) => _$AttachedFileFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AttachedFileToJson(this);
+}
+
+// Reaction Classes
+//------------------
+@JsonSerializable(explicitToJson: true)
+class Reaction
+{
+  @JsonKey(name: "reactor_emails")
+  List<String> reactorEmails;
+
+  ReactionEmoji emoji;
+
+  Reaction(this.reactorEmails, this.emoji);
+
+  factory Reaction.fromJson(Map<String, dynamic> json) => _$ReactionFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ReactionToJson(this);
+}
+@JsonSerializable(explicitToJson: true)
+class ReactionEmoji
+{
+  String unicode;
+
+  ReactionEmoji(this.unicode);
+
+  factory ReactionEmoji.fromJson(Map<String, dynamic> json) => _$ReactionEmojiFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ReactionEmojiToJson(this);
+}
+
+// Creator Classes
+//-----------------
 class _CreatorConverter implements JsonConverter<Creator, Map<String, dynamic>>
 {
   const _CreatorConverter();
