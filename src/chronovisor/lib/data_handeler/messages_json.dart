@@ -31,6 +31,10 @@ class Message
   String? messageId;
   @JsonKey(name: 'attached_files')
   AttachedFiles? attachedFiles;
+  @JsonKey(name: 'previous_message_versions')
+  List<Message>? previousMessageVersions;
+  @JsonKey(name: 'quoted_message_metadata')
+  List<Message>? quotedMessageMetadata;
 
   Reaction? reactions;
 
