@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 import 'package:json_annotation/json_annotation.dart';
 
 part 'messages_json.g.dart';
@@ -22,9 +24,10 @@ class Message
   Creator creator;
 
   @JsonKey(name: 'created_date')
-  String? createdDate;
+  @_DateConverter()
+  DateTime? createdDate;
   @JsonKey(name: 'updated_date')
-  String? updatedDate;
+  DateTime? updatedDate;
   @JsonKey(name: 'topic_id')
   String? topicId;
   @JsonKey(name: 'message_id')
@@ -44,6 +47,34 @@ class Message
   factory Message.fromJson(Map<String, dynamic> json) => _$MessageFromJson(json);
 
   Map<String, dynamic> toJson() => _$MessageToJson(this);
+}
+
+// DateTime Classes
+//------------------
+class _DateConverter implements JsonConverter<DateTime, String>
+{
+  const _DateConverter();
+
+  @override
+  fromJson(String json)
+  {
+    return stringToDate(json);
+  }
+
+  @override
+  String toJson(DateTime date)
+  {
+    return dateToString(date);
+  }
+
+  DateTime stringToDate(String date)
+  {
+    return DateFormat("EEEE, MMMM dd, yyyy 'at' h:mm:ss' 'a 'UTC'").parse(date, true);
+  }
+  String dateToString(DateTime date)
+  {
+    return DateFormat("EEEE, MMMM dd, yyyy 'at' h:mm:ss' 'a 'UTC'").format(date);
+  }
 }
 
 // Annotations Classes

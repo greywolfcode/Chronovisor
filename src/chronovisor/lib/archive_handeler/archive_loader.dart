@@ -26,7 +26,6 @@ import 'package:path/path.dart' as p;
 import 'package:archive/archive_io.dart';
 import 'package:archive/archive.dart';
 
-import 'package:intl/intl.dart';
 
 import '../data_handeler/messages_json.dart';
 import '../data_handeler/messages_database.dart';
@@ -92,7 +91,7 @@ Future<void> generateDatabases(String dirPath) async
     for (Message message in messages.messages)
     {
       //TODO: Remove when multiple message types are handled
-      message.createdDate ??= "Thursday, January 1, 1970 at 12:00:00 AM UTC";
+      message.createdDate ??= DateTime(1970, 1, 1, 0, 0, 0, 0);
       message.text ??= "Lorem ipsum dolor sit amet, consectetur adipiscing elit";
       message.topicId ??= "aaaaaaaaaaa/bbbbbbbbbbb/bbbbbbbbbbb";
 
@@ -105,14 +104,11 @@ Future<void> generateDatabases(String dirPath) async
       await database
         .into(database.messagesTable)
         .insert(MessagesTableCompanion.insert(name: message.creator.name, email:email, userType: message.creator.type,
-          createdDate: convertDate(message.createdDate!), messageText: message.text!, topicId: message.topicId!));
+          createdDate: message.createdDate!, messageText: message.text!, topicId: message.topicId!));
     }
   }
 }
-DateTime convertDate(String date)
-{
-  return DateFormat("EEEE, MMMM dd, yyyy 'at' h:mm:ss' 'a 'UTC'").parse(date, true);
-}
+
 
 ChatArchive processArchive(String path)
 {
