@@ -35,17 +35,100 @@ class Message
   List<Message>? previousMessageVersions;
   @JsonKey(name: 'quoted_message_metadata')
   List<Message>? quotedMessageMetadata;
-
   Reaction? reactions;
-
+  Annotation? annotations;
   String? text;
-  
 
   Message(this.creator, this.topicId, this.messageId);
 
   factory Message.fromJson(Map<String, dynamic> json) => _$MessageFromJson(json);
 
   Map<String, dynamic> toJson() => _$MessageToJson(this);
+}
+
+// Annotations Classes
+//---------------------
+@JsonSerializable(explicitToJson: true)
+class Annotation
+{
+  @JsonKey(name: 'url_metadata')
+  UrlMetadata? urlMetadata; 
+  @JsonKey(name: 'video_call_metadata')
+  VideoCallMetadata? videoCallMetadata; 
+  @JsonKey(name: 'format_metadata')
+  FormatMetadata? formatMetadata; 
+  @JsonKey(name: 'start_index')
+  int startIndex; 
+  int length;
+
+  Annotation(this.startIndex, this.length, this.urlMetadata);
+
+  factory Annotation.fromJson(Map<String, dynamic> json) => _$AnnotationFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AnnotationToJson(this);
+}
+@JsonSerializable(explicitToJson: true)
+class UrlMetadata
+{
+  @JsonKey(name: 'image_url')
+  String imageUrl; 
+  String title;
+  String snippet;
+  UrlValue url;
+
+  UrlMetadata(this.imageUrl, this.title, this.snippet, this.url);
+
+  factory UrlMetadata.fromJson(Map<String, dynamic> json) => _$UrlMetadataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$UrlMetadataToJson(this);
+}
+@JsonSerializable(explicitToJson: true)
+class UrlValue
+{
+  @JsonKey(name: 'private_do_not_access_or_else_safe_url_wrapped_value')
+  String privateDoNotAccessOrElseSafeUrlWrappedValue; 
+
+  UrlValue(this.privateDoNotAccessOrElseSafeUrlWrappedValue);
+
+  factory UrlValue.fromJson(Map<String, dynamic> json) => _$UrlValueFromJson(json);
+
+  Map<String, dynamic> toJson() => _$UrlValueToJson(this);
+}
+@JsonSerializable(explicitToJson: true)
+class VideoCallMetadata
+{
+  @JsonKey(name: 'meeting_space')
+  MeetingSpace meetingSpace; 
+
+  VideoCallMetadata(this.meetingSpace);
+
+  factory VideoCallMetadata.fromJson(Map<String, dynamic> json) => _$VideoCallMetadataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VideoCallMetadataToJson(this);
+}
+@JsonSerializable(explicitToJson: true)
+class MeetingSpace
+{
+  @JsonKey(name: 'meeting_url')
+  String meetingUrl; 
+
+  MeetingSpace(this.meetingUrl);
+
+  factory MeetingSpace.fromJson(Map<String, dynamic> json) => _$MeetingSpaceFromJson(json);
+
+  Map<String, dynamic> toJson() => _$MeetingSpaceToJson(this);
+}
+@JsonSerializable(explicitToJson: true)
+class FormatMetadata
+{
+  @JsonKey(name: 'format_type')
+  String formatType; 
+
+  FormatMetadata(this.formatType);
+
+  factory FormatMetadata.fromJson(Map<String, dynamic> json) => _$FormatMetadataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$FormatMetadataToJson(this);
 }
 
 // Attached Files Classes
