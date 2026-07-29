@@ -82,7 +82,7 @@ class ReactionEmailConverter extends TypeConverter<List<String>, String>
   }
 }
 
-@DriftDatabase(tables: [MessagesTable])
+@DriftDatabase(tables: [MessagesTable, AnnotationsTable, FilesTable, ReactionTable])
 class MessagesDatabase extends _$MessagesDatabase
 {
   MessagesDatabase(File databasePath, [QueryExecutor? executor]) : super(executor ?? _openConnection(databasePath));
