@@ -38,7 +38,7 @@ class Message
   List<Message>? previousMessageVersions;
   @JsonKey(name: 'quoted_message_metadata')
   List<Message>? quotedMessageMetadata;
-  Reaction? reactions;
+  List<Reaction>? reactions;
   List<Annotation>? annotations;
   String? text;
 

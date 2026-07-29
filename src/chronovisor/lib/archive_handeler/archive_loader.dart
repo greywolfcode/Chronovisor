@@ -120,15 +120,18 @@ Future<void> insertMessage(MessagesDatabase database, Message message) async
   var reactions = message.reactions;
   if (reactions != null)
   {
-    await database
-    .into(database.reactionTable)
-    .insert(
-      ReactionTableCompanion.insert(
-        parentId: id,
-        emails: reactions.reactorEmails,
-        emoji: reactions.emoji.unicode
-      )
-    );
+    for (var reaction in reactions)
+    {
+      await database
+      .into(database.reactionTable)
+      .insert(
+        ReactionTableCompanion.insert(
+          parentId: id,
+          emails: reaction.reactorEmails,
+          emoji: reaction.emoji.unicode
+        )
+      );
+    }
   }
   var files = message.attachedFiles;
   if (files != null)
