@@ -55,7 +55,7 @@ class FilesTable extends Table
 class ReactionTable extends Table
 {
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get reactionId => integer().references(ReactionTable, #id)();
+  IntColumn get parentId => integer().references(MessagesTable, #id)();
   TextColumn get emails => text().map(const ReactionEmailConverter())();
   TextColumn get emoji => text()();
 }
