@@ -110,13 +110,23 @@ Future<void> insertMessage(MessagesDatabase database, Message message) async
         name: Value(message.creator.name), 
         email: Value(email), 
         userType: Value(message.creator.type),
-        createdDate: Value(message.createdDate), 
+        //If there is no created dat, there is an updated date
+        createdDate: Value(message.createdDate ?? message.updatedDate), 
         messageText: Value(message.text), 
         topicId: Value(message.topicId),
         messageId: Value(message.messageId),
       )
     );
-  
+
+  var previousVersions = message.previousMessageVersions;
+  if (previousVersions != null)
+  {
+    for (var version in previousVersions)
+    {
+      insertMessage(database, version);
+    }
+  }
+
   var reactions = message.reactions;
   if (reactions != null)
   {
