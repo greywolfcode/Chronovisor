@@ -130,6 +130,22 @@ Future<void> insertMessage(MessagesDatabase database, Message message) async
       )
     );
   }
+  var files = message.attachedFiles;
+  if (files != null)
+  {
+    for (var file in files.files)
+    {
+      await database
+      .into(database.filesTable)
+      .insert(
+        FilesTableCompanion.insert(
+          parentId: id,
+          originalName: file.originalName,
+          exportName: file.exportName
+        )
+      );
+    }
+  }
 }
 
 ChatArchive processArchive(String path)
