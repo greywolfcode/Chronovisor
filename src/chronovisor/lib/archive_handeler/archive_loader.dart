@@ -91,29 +91,32 @@ Future<void> generateDatabases(String dirPath) async
     final database = MessagesDatabase(File(p.join(group.path, "messages.sqlite")));
     for (Message message in messages.messages)
     {
-      String? email;
-      if (message.creator is HumanCreator)
-      {
-        email = (message.creator as HumanCreator).email;
-      }
-
-      await database
-        .into(database.messagesTable)
-        .insert(
-          MessagesTableCompanion.insert(
-            name: Value(message.creator.name), 
-            email: Value(email), 
-            userType: Value(message.creator.type),
-            createdDate: Value(message.createdDate), 
-            messageText: Value(message.text), 
-            topicId: Value(message.topicId),
-            messageId: Value(message.messageId),
-          )
-        );
+      await insertMessage(database, message);
     }
   }
 }
+Future<void> insertMessage(MessagesDatabase database, Message message) async
+{
+  String? email;
+  if (message.creator is HumanCreator)
+  {
+    email = (message.creator as HumanCreator).email;
+  }
 
+  int id = await database
+    .into(database.messagesTable)
+    .insert(
+      MessagesTableCompanion.insert(
+        name: Value(message.creator.name), 
+        email: Value(email), 
+        userType: Value(message.creator.type),
+        createdDate: Value(message.createdDate), 
+        messageText: Value(message.text), 
+        topicId: Value(message.topicId),
+        messageId: Value(message.messageId),
+      )
+    );
+}
 
 ChatArchive processArchive(String path)
 {
