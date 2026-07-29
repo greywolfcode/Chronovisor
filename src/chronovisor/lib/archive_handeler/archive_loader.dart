@@ -116,6 +116,20 @@ Future<void> insertMessage(MessagesDatabase database, Message message) async
         messageId: Value(message.messageId),
       )
     );
+  
+  var reactions = message.reactions;
+  if (reactions != null)
+  {
+    await database
+    .into(database.reactionTable)
+    .insert(
+      ReactionTableCompanion.insert(
+        parentId: id,
+        emails: reactions.reactorEmails,
+        emoji: reactions.emoji.unicode
+      )
+    );
+  }
 }
 
 ChatArchive processArchive(String path)
