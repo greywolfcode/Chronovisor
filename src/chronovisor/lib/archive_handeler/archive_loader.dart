@@ -106,7 +106,8 @@ Future<void> generateDatabases(String dirPath) async
             userType: Value(message.creator.type),
             createdDate: Value(message.createdDate), 
             messageText: Value(message.text), 
-            topicId: Value(message.topicId)
+            topicId: Value(message.topicId),
+            messageId: Value(message.messageId),
           )
         );
     }
