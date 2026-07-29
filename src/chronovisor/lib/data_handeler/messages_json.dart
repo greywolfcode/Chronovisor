@@ -39,7 +39,7 @@ class Message
   @JsonKey(name: 'quoted_message_metadata')
   List<Message>? quotedMessageMetadata;
   Reaction? reactions;
-  Annotation? annotations;
+  List<Annotation>? annotations;
   String? text;
 
   Message(this.creator, this.topicId, this.messageId);

@@ -146,6 +146,34 @@ Future<void> insertMessage(MessagesDatabase database, Message message) async
       );
     }
   }
+  var annotations = message.annotations;
+  if (annotations != null)
+  {
+    for (var annotation in annotations)
+    {
+      await database
+      .into(database.annotationsTable)
+      .insert(
+        AnnotationsTableCompanion.insert(
+          parentId: id,
+          startIndex: annotation.startIndex,
+          length: annotation.length,
+
+          // Url Metadata
+          imageUrl: Value(annotation.urlMetadata?.imageUrl),
+          title: Value(annotation.urlMetadata?.title),
+          snippet: Value(annotation.urlMetadata?.snippet),
+          privateDoNotAccessOrElseSafeUrlWrappedValue: Value(annotation.urlMetadata?.url.privateDoNotAccessOrElseSafeUrlWrappedValue ),
+
+          // Video Call Metadata
+          meetingUrl: Value(annotation.videoCallMetadata?.meetingSpace.meetingUrl),
+
+          // Format Metadata
+          formatType: Value(annotation.formatMetadata?.formatType)
+        )
+      );
+    }
+  }
 }
 
 ChatArchive processArchive(String path)
