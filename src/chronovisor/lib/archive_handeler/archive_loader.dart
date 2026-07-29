@@ -26,6 +26,7 @@ import 'package:path/path.dart' as p;
 import 'package:archive/archive_io.dart';
 import 'package:archive/archive.dart';
 
+import 'package:drift/drift.dart';
 
 import '../data_handeler/messages_json.dart';
 import '../data_handeler/messages_database.dart';
@@ -84,18 +85,13 @@ Future<void> generateDatabases(String dirPath) async
     }
 
     final jsonData = messagesPath.readAsStringSync();
-    final message_data = jsonDecode(jsonData) as Map<String, dynamic>;
-    final messages = ChatData.fromJson(message_data); 
+    final messageData = jsonDecode(jsonData) as Map<String, dynamic>;
+    final messages = ChatData.fromJson(messageData); 
 
     final database = MessagesDatabase(File(p.join(group.path, "messages.sqlite")));
     for (Message message in messages.messages)
     {
-      //TODO: Remove when multiple message types are handled
-      message.createdDate ??= DateTime(1970, 1, 1, 0, 0, 0, 0);
-      message.text ??= "Lorem ipsum dolor sit amet, consectetur adipiscing elit";
-      message.topicId ??= "aaaaaaaaaaa/bbbbbbbbbbb/bbbbbbbbbbb";
-
-      String email = "temp@temp.temp";
+      String? email;
       if (message.creator is HumanCreator)
       {
         email = (message.creator as HumanCreator).email;
@@ -103,8 +99,16 @@ Future<void> generateDatabases(String dirPath) async
 
       await database
         .into(database.messagesTable)
-        .insert(MessagesTableCompanion.insert(name: message.creator.name, email:email, userType: message.creator.type,
-          createdDate: message.createdDate!, messageText: message.text!, topicId: message.topicId!));
+        .insert(
+          MessagesTableCompanion.insert(
+            name: Value(message.creator.name), 
+            email: Value(email), 
+            userType: Value(message.creator.type),
+            createdDate: Value(message.createdDate), 
+            messageText: Value(message.text), 
+            topicId: Value(message.topicId)
+          )
+        );
     }
   }
 }
