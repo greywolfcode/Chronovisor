@@ -16,9 +16,6 @@ class MessagesTable extends Table
   TextColumn get messageText => text().nullable()();
   TextColumn get topicId => text().nullable()();
   TextColumn get messageId => text().nullable()();
-  IntColumn get annotationsId => integer().references(AnnotationsTable, #id).nullable()();
-  IntColumn get filesId => integer().references(FilesTable, #id).nullable()();
-  IntColumn get reactionId => integer().references(ReactionTable, #id).nullable()();
 }
 
 // Annotations Class
@@ -26,6 +23,7 @@ class MessagesTable extends Table
 class AnnotationsTable extends Table
 {
   IntColumn get id => integer().autoIncrement()();
+  IntColumn get parentId => integer().references(MessagesTable, #id)();
   IntColumn get startIndex => integer()();
   IntColumn get length => integer()();
 
@@ -47,6 +45,7 @@ class AnnotationsTable extends Table
 class FilesTable extends Table
 {
   IntColumn get id => integer().autoIncrement()();
+  IntColumn get parentId => integer().references(MessagesTable, #id)();
   TextColumn get originalName => text()();
   TextColumn get exportName => text()();
 }
@@ -56,6 +55,7 @@ class FilesTable extends Table
 class ReactionTable extends Table
 {
   IntColumn get id => integer().autoIncrement()();
+  IntColumn get reactionId => integer().references(ReactionTable, #id)();
   TextColumn get emails => text().map(const ReactionEmailConverter())();
   TextColumn get emoji => text()();
 }
