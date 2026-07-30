@@ -61,7 +61,7 @@ class PreviousMessageVersion
   @JsonKey(name: 'attached_files')
   List<AttachedFile>? attachedFiles;
   @JsonKey(name: 'quoted_message_metadata')
-  List<Message>? quotedMessageMetadata;
+  QuotedMessageMetadata? quotedMessageMetadata;
   List<Annotation>? annotations;
   String? text;
 
