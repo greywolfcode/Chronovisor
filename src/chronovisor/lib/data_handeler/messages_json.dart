@@ -38,7 +38,7 @@ class Message
   @JsonKey(name: 'previous_message_versions')
   List<PreviousMessageVersion>? previousMessageVersions;
   @JsonKey(name: 'quoted_message_metadata')
-  List<Message>? quotedMessageMetadata;
+  QuotedMessageMetadata? quotedMessageMetadata;
   List<Reaction>? reactions;
   List<Annotation>? annotations;
   String? text;
@@ -70,6 +70,20 @@ class PreviousMessageVersion
   factory PreviousMessageVersion.fromJson(Map<String, dynamic> json) => _$PreviousMessageVersionFromJson(json);
 
   Map<String, dynamic> toJson() => _$PreviousMessageVersionToJson(this);
+}
+@JsonSerializable(explicitToJson: true)
+class QuotedMessageMetadata
+{
+  @JsonKey(name: 'attached_files')
+  List<AttachedFile>? attachedFiles;
+  List<Annotation>? annotations;
+  String? text;
+
+  QuotedMessageMetadata();
+
+  factory QuotedMessageMetadata.fromJson(Map<String, dynamic> json) => _$QuotedMessageMetadataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$QuotedMessageMetadataToJson(this);
 }
 
 // DateTime Classes
