@@ -30,13 +30,13 @@ class Message
   @_DateConverter()
   DateTime? updatedDate;
   @JsonKey(name: 'topic_id')
-  String? topicId;
+  String topicId;
   @JsonKey(name: 'message_id')
-  String? messageId;
+  String messageId;
   @JsonKey(name: 'attached_files')
   List<AttachedFile>? attachedFiles;
   @JsonKey(name: 'previous_message_versions')
-  List<Message>? previousMessageVersions;
+  List<PreviousMessageVersion>? previousMessageVersions;
   @JsonKey(name: 'quoted_message_metadata')
   List<Message>? quotedMessageMetadata;
   List<Reaction>? reactions;
@@ -48,6 +48,28 @@ class Message
   factory Message.fromJson(Map<String, dynamic> json) => _$MessageFromJson(json);
 
   Map<String, dynamic> toJson() => _$MessageToJson(this);
+}
+@JsonSerializable(explicitToJson: true)
+class PreviousMessageVersion
+{
+  @JsonKey(name: 'created_date')
+  @_DateConverter()
+  DateTime? createdDate;
+  @JsonKey(name: 'updated_date')
+  @_DateConverter()
+  DateTime? updatedDate;
+  @JsonKey(name: 'attached_files')
+  List<AttachedFile>? attachedFiles;
+  @JsonKey(name: 'quoted_message_metadata')
+  List<Message>? quotedMessageMetadata;
+  List<Annotation>? annotations;
+  String? text;
+
+  PreviousMessageVersion();
+
+  factory PreviousMessageVersion.fromJson(Map<String, dynamic> json) => _$PreviousMessageVersionFromJson(json);
+
+  Map<String, dynamic> toJson() => _$PreviousMessageVersionToJson(this);
 }
 
 // DateTime Classes

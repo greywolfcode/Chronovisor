@@ -121,21 +121,7 @@ Future<void> insertMessage(MessagesDatabase database, Message message, AttachedF
   var files = message.attachedFiles;
   if (files != null)
   {
-    for (var file in files)
-    {
-      String storedName = filesStorage.getStoredFileName(file.exportName);
-
-      await database
-      .into(database.filesTable)
-      .insert(
-        FilesTableCompanion.insert(
-          parentId: id,
-          originalName: file.originalName,
-          exportName: file.exportName,
-          storedName: storedName
-        )
-      );
-    }
+    await insertAttachedFiles(database, id, files, filesStorage);
   }
   var previousVersions = message.previousMessageVersions;
   if (previousVersions != null)
@@ -145,7 +131,7 @@ Future<void> insertMessage(MessagesDatabase database, Message message, AttachedF
     filesStorage.freeze();
     for (var version in previousVersions)
     {
-      insertMessage(database, version, filesStorage);
+      await insertPreviousMessage(database, version, filesStorage, message.creator, message.topicId, message.messageId);
     }
     filesStorage.unfreeze();
   }
@@ -153,46 +139,106 @@ Future<void> insertMessage(MessagesDatabase database, Message message, AttachedF
   var reactions = message.reactions;
   if (reactions != null)
   {
-    for (var reaction in reactions)
-    {
-      await database
-      .into(database.reactionTable)
-      .insert(
-        ReactionTableCompanion.insert(
-          parentId: id,
-          emails: reaction.reactorEmails,
-          emoji: reaction.emoji.unicode
-        )
-      );
-    }
+    await insertReactions(database, id, reactions);
   }
   var annotations = message.annotations;
   if (annotations != null)
   {
-    for (var annotation in annotations)
-    {
-      await database
-      .into(database.annotationsTable)
-      .insert(
-        AnnotationsTableCompanion.insert(
-          parentId: id,
-          startIndex: annotation.startIndex,
-          length: annotation.length,
+    await insertAnnotations(database, id, annotations);
+  }
+    
+}
+Future<void> insertPreviousMessage(MessagesDatabase database, PreviousMessageVersion message, AttachedFilesStorage filesStorage, Creator creator, String topicId, String messageId) async
+{
+  String? email;
+  if (creator is HumanCreator)
+  {
+    email = creator.email;
+  }
 
-          // Url Metadata
-          imageUrl: Value(annotation.urlMetadata?.imageUrl),
-          title: Value(annotation.urlMetadata?.title),
-          snippet: Value(annotation.urlMetadata?.snippet),
-          privateDoNotAccessOrElseSafeUrlWrappedValue: Value(annotation.urlMetadata?.url.privateDoNotAccessOrElseSafeUrlWrappedValue ),
+  int id = await database
+    .into(database.messagesTable)
+    .insert(
+      MessagesTableCompanion.insert(
+        name: Value(creator.name), 
+        email: Value(email), 
+        userType: Value(creator.type),
+        //If there is no created dat, there is an updated date
+        createdDate: Value(message.createdDate ?? message.updatedDate), 
+        messageText: Value(message.text), 
+        topicId: Value(topicId),
+        messageId: Value(messageId),
+      )
+    );
+  var files = message.attachedFiles;
+  if (files != null)
+  {
+    await insertAttachedFiles(database, id, files, filesStorage);
+  }
+  var annotations = message.annotations;
+  if (annotations != null)
+  {
+    await insertAnnotations(database, id, annotations);
+  } 
+}
+Future<void> insertAttachedFiles(MessagesDatabase database, int id, List<AttachedFile> files, AttachedFilesStorage filesStorage) async
+{
+  for (var file in files)
+  {
+    String storedName = filesStorage.getStoredFileName(file.exportName);
 
-          // Video Call Metadata
-          meetingUrl: Value(annotation.videoCallMetadata?.meetingSpace.meetingUrl),
+    await database
+    .into(database.filesTable)
+    .insert(
+      FilesTableCompanion.insert(
+        parentId: id,
+        originalName: file.originalName,
+        exportName: file.exportName,
+        storedName: storedName
+      )
+    );
+  }
+}
+Future<void> insertReactions(MessagesDatabase database, int id, List<Reaction> reactions) async
+{
+  for (var reaction in reactions)
+  {
+    await database
+    .into(database.reactionTable)
+    .insert(
+      ReactionTableCompanion.insert(
+        parentId: id,
+        emails: reaction.reactorEmails,
+        emoji: reaction.emoji.unicode
+      )
+    );
+  }
+}
+Future<void> insertAnnotations(MessagesDatabase database, int id, List<Annotation> annotations) async
+{
+  for (var annotation in annotations)
+  {
+    await database
+    .into(database.annotationsTable)
+    .insert(
+      AnnotationsTableCompanion.insert(
+        parentId: id,
+        startIndex: annotation.startIndex,
+        length: annotation.length,
 
-          // Format Metadata
-          formatType: Value(annotation.formatMetadata?.formatType)
-        )
-      );
-    }
+        // Url Metadata
+        imageUrl: Value(annotation.urlMetadata?.imageUrl),
+        title: Value(annotation.urlMetadata?.title),
+        snippet: Value(annotation.urlMetadata?.snippet),
+        privateDoNotAccessOrElseSafeUrlWrappedValue: Value(annotation.urlMetadata?.url.privateDoNotAccessOrElseSafeUrlWrappedValue ),
+
+        // Video Call Metadata
+        meetingUrl: Value(annotation.videoCallMetadata?.meetingSpace.meetingUrl),
+
+        // Format Metadata
+        formatType: Value(annotation.formatMetadata?.formatType)
+      )
+    );
   }
 }
 
