@@ -121,7 +121,7 @@ Future<void> insertMessage(MessagesDatabase database, Message message, AttachedF
   var files = message.attachedFiles;
   if (files != null)
   {
-    for (var file in files.files)
+    for (var file in files)
     {
       String storedName = filesStorage.getStoredFileName(file.exportName);
 

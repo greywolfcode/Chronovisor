@@ -33,7 +33,7 @@ class Message
   @JsonKey(name: 'message_id')
   String? messageId;
   @JsonKey(name: 'attached_files')
-  AttachedFiles? attachedFiles;
+  List<AttachedFile>? attachedFiles;
   @JsonKey(name: 'previous_message_versions')
   List<Message>? previousMessageVersions;
   @JsonKey(name: 'quoted_message_metadata')
@@ -164,17 +164,6 @@ class FormatMetadata
 
 // Attached Files Classes
 //------------------------
-@JsonSerializable(explicitToJson: true)
-class AttachedFiles
-{
-  List<AttachedFile> files;
-
-  AttachedFiles(this.files);
-
-  factory AttachedFiles.fromJson(Map<String, dynamic> json) => _$AttachedFilesFromJson(json);
-
-  Map<String, dynamic> toJson() => _$AttachedFilesToJson(this);
-}
 @JsonSerializable(explicitToJson: true)
 class AttachedFile
 {
