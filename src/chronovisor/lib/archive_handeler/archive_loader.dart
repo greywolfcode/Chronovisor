@@ -89,13 +89,14 @@ Future<void> generateDatabases(String dirPath) async
     final messages = ChatData.fromJson(messageData); 
 
     final database = MessagesDatabase(File(p.join(group.path, "messages.sqlite")));
+    AttachedFilesStorage filesStorage = AttachedFilesStorage();
     for (Message message in messages.messages)
     {
-      await insertMessage(database, message);
+      await insertMessage(database, message, filesStorage);
     }
   }
 }
-Future<void> insertMessage(MessagesDatabase database, Message message) async
+Future<void> insertMessage(MessagesDatabase database, Message message, AttachedFilesStorage filesStorage) async
 {
   String? email;
   if (message.creator is HumanCreator)
@@ -117,14 +118,36 @@ Future<void> insertMessage(MessagesDatabase database, Message message) async
         messageId: Value(message.messageId),
       )
     );
+  var files = message.attachedFiles;
+  if (files != null)
+  {
+    for (var file in files.files)
+    {
+      String storedName = filesStorage.getStoredFileName(file.exportName);
 
+      await database
+      .into(database.filesTable)
+      .insert(
+        FilesTableCompanion.insert(
+          parentId: id,
+          originalName: file.originalName,
+          exportName: file.exportName,
+          storedName: storedName
+        )
+      );
+    }
+  }
   var previousVersions = message.previousMessageVersions;
   if (previousVersions != null)
   {
+    //assuming that any images in previous versions have the same name;
+    //there doesn't appear to be a way to tell otherwise
+    filesStorage.freeze();
     for (var version in previousVersions)
     {
-      insertMessage(database, version);
+      insertMessage(database, version, filesStorage);
     }
+    filesStorage.unfreeze();
   }
 
   var reactions = message.reactions;
@@ -139,22 +162,6 @@ Future<void> insertMessage(MessagesDatabase database, Message message) async
           parentId: id,
           emails: reaction.reactorEmails,
           emoji: reaction.emoji.unicode
-        )
-      );
-    }
-  }
-  var files = message.attachedFiles;
-  if (files != null)
-  {
-    for (var file in files.files)
-    {
-      await database
-      .into(database.filesTable)
-      .insert(
-        FilesTableCompanion.insert(
-          parentId: id,
-          originalName: file.originalName,
-          exportName: file.exportName
         )
       );
     }
@@ -186,6 +193,46 @@ Future<void> insertMessage(MessagesDatabase database, Message message) async
         )
       );
     }
+  }
+}
+
+///Stores how many times a file name has been attached
+class AttachedFilesStorage
+{
+  Map<String, int> files = {};
+  ///Only accept new files, don't update count
+  bool frozen = false;
+
+  AttachedFilesStorage();
+
+  void freeze()
+  {
+    frozen = true;
+  }
+  void unfreeze()
+  {
+    frozen = false;
+  }
+  String getStoredFileName(String file)
+  {
+    if (frozen)
+    {
+      return file;
+    }
+
+    if (!files.containsKey(file))
+    {
+      files.addAll(
+        {file: 1},
+      );
+      return file;
+    }
+
+    //Not new, and not frozzen, so update count
+    files.update(file, (value) => files[file]! + 1, ifAbsent: () => 1);
+    List<String> fileParts = file.split(".");
+    String extension = fileParts.removeLast();
+    return  "${fileParts.join()}(${(files[file]! + 1).toString()})$extension";
   }
 }
 

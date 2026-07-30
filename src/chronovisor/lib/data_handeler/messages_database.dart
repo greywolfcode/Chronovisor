@@ -48,6 +48,7 @@ class FilesTable extends Table
   IntColumn get parentId => integer().references(MessagesTable, #id)();
   TextColumn get originalName => text()();
   TextColumn get exportName => text()();
+  TextColumn get storedName => text()();
 }
 
 // Reactions Classes
