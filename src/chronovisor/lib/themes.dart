@@ -56,10 +56,51 @@ class ChatTheme extends StatelessWidget
           Column( //selected chat
             children: [
               Text('chat'),
+              ChatMessage(
+                text: "Lorem ipsum dolor sit amet.", 
+                decoration: BoxDecoration(
+                  color: Color.fromARGB(255, 186, 187, 188),
+                  borderRadius: BorderRadius.circular(12.0)
+                )
+              )
             ],
-            )
+          )
         ],
       ),
+    );
+  }
+}
+
+class ChatMessage extends StatelessWidget
+{
+  final String text;
+  final BoxDecoration decoration; 
+
+  const ChatMessage({super.key, required this.decoration, required this.text});
+
+  @override
+  Widget build(BuildContext context)
+  {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8.0),
+      ), 
+      child: Padding( 
+        padding: const EdgeInsetsDirectional.only(
+          //it appears that the padding looks the same
+          //when verticle padding is half horizontal
+          start: 8.0, //left
+          top: 4.0,
+          end: 8.0, //right
+          bottom: 4.0
+        ),
+        child: RichText(
+          text: TextSpan(
+            text: text,
+            style: DefaultTextStyle.of(context).style
+          )
+        )
+      )
     );
   }
 }
