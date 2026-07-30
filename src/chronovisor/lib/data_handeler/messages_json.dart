@@ -27,6 +27,7 @@ class Message
   @_DateConverter()
   DateTime? createdDate;
   @JsonKey(name: 'updated_date')
+  @_DateConverter()
   DateTime? updatedDate;
   @JsonKey(name: 'topic_id')
   String? topicId;
