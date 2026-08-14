@@ -81,26 +81,34 @@ class ChatMessage extends StatelessWidget
   @override
   Widget build(BuildContext context)
   {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0),
-      ), 
-      child: Padding( 
-        padding: const EdgeInsetsDirectional.only(
-          //it appears that the padding looks the same
-          //when verticle padding is half horizontal
-          start: 8.0, //left
-          top: 4.0,
-          end: 8.0, //right
-          bottom: 4.0
+    return Row(
+      children: [
+        CircleAvatar(
+          backgroundColor: Color.fromARGB(100, 100, 100, 100),
+          radius: 20.0,
         ),
-        child: RichText(
-          text: TextSpan(
-            text: text,
-            style: DefaultTextStyle.of(context).style
+        Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ), 
+          child: Padding( 
+            padding: const EdgeInsetsDirectional.only(
+              //it appears that the padding looks the same
+              //when verticle padding is half horizontal
+              start: 8.0, //left
+              top: 4.0,
+              end: 8.0, //right
+              bottom: 4.0
+            ),
+              child: RichText(
+                text: TextSpan(
+                  text: text,
+                  style: DefaultTextStyle.of(context).style
+                )
+              ),
+            )
           )
-        )
-      )
+      ]
     );
   }
 }
